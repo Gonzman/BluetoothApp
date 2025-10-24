@@ -5,37 +5,43 @@
 //  Created by Yuki Schäfer on 12.07.24.
 //
 
-import SwiftUI
 import CoreBluetooth
-import SwiftUIJoystick
 import Foundation
-
+import SwiftUI
+import SwiftUIJoystick
 
 struct ContentView: View {
     @StateObject private var bluetoothService: Bluetooth = Bluetooth()
     @StateObject private var monitor = JoystickMonitor()
-    @State private var isBluetoothListShown = false;
+    @State private var isBluetoothListShown = false
     private let draggableDiameter: CGFloat = 150
     var body: some View {
-        VStack{
-            HStack{
-                Button("Verbinden", systemImage: "antenna.radiowaves.left.and.right"){
+        VStack {
+            HStack {
+                Button(
+                    "Verbinden",
+                    systemImage: "antenna.radiowaves.left.and.right"
+                ) {
                     isBluetoothListShown.toggle()
                 }.sheet(isPresented: $isBluetoothListShown) {
                     VStack {
                         PeripheralListView()
-                            .environmentObject(bluetoothService);
-                        Button("Dismiss",
-                               action: { isBluetoothListShown.toggle() })
+                            .environmentObject(bluetoothService)
+                        Button(
+                            "Dismiss",
+                            action: { isBluetoothListShown.toggle() }
+                        )
                     }
                 }.padding(15)
-                
+
                 Spacer()
-                
-                Button("Trennen"){
+
+                Button("Trennen") {
                     bluetoothService.disconnect()
                 }
-                .buttonStyle(.bordered).disabled(bluetoothService.peripheralStatus != .connected)
+                .buttonStyle(.bordered).disabled(
+                    bluetoothService.peripheralStatus != .connected
+                )
                 .padding(15)
             }
             Spacer()
@@ -43,9 +49,15 @@ struct ContentView: View {
             Text("X: \(monitor.xyPoint.x)")
             Text("Y: \(monitor.xyPoint.y * -1)")
 
-            HStack{
+            HStack {
                 Spacer()
-                Joystick(monitor: monitor, width: 200, shape: .circle, xID: 0, yID: 1).padding(60)
+                Joystick(
+                    monitor: monitor,
+                    width: 200,
+                    shape: .circle,
+                    xID: 0,
+                    yID: 1
+                ).padding(60)
                     .environmentObject(bluetoothService)
             }
         }
@@ -55,7 +67,6 @@ struct ContentView: View {
         isBluetoothListShown.toggle()
     }
 }
-
 
 #Preview {
     ContentView()
