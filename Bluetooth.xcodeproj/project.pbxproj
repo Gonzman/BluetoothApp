@@ -12,7 +12,6 @@
 		93B72B9A2C40FB3200355965 /* BluetoothApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B72B992C40FB3200355965 /* BluetoothApp.swift */; };
 		93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B72B9B2C40FB3200355965 /* ContentView.swift */; };
 		93B72B9E2C40FB3400355965 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93B72B9D2C40FB3400355965 /* Assets.xcassets */; };
-		93B72BA12C40FB3400355965 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93B72BA02C40FB3400355965 /* Preview Assets.xcassets */; };
 		93CDE6442C46B32300F281AC /* ControllView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE6432C46B32300F281AC /* ControllView.swift */; };
 		93CDE6472C46C64800F281AC /* SwiftUIJoystick in Frameworks */ = {isa = PBXBuildFile; productRef = 93CDE6462C46C64800F281AC /* SwiftUIJoystick */; };
 		93CDE64B2C46D3F100F281AC /* JoyStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE64A2C46D3F100F281AC /* JoyStick.swift */; };
@@ -26,7 +25,6 @@
 		93B72B992C40FB3200355965 /* BluetoothApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothApp.swift; sourceTree = "<group>"; };
 		93B72B9B2C40FB3200355965 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		93B72B9D2C40FB3400355965 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		93B72BA02C40FB3400355965 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		93CDE6432C46B32300F281AC /* ControllView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllView.swift; sourceTree = "<group>"; };
 		93CDE64A2C46D3F100F281AC /* JoyStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyStick.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -66,21 +64,12 @@
 				93B72B992C40FB3200355965 /* BluetoothApp.swift */,
 				93B72B9B2C40FB3200355965 /* ContentView.swift */,
 				93B72B9D2C40FB3400355965 /* Assets.xcassets */,
-				93B72B9F2C40FB3400355965 /* Preview Content */,
 				933DE7EA2C42C5E60011307B /* Bluetooth.swift */,
 				9336AD382C458112000CFF6B /* PeripheralListView.swift */,
 				93CDE6432C46B32300F281AC /* ControllView.swift */,
 				93CDE64A2C46D3F100F281AC /* JoyStick.swift */,
 			);
 			path = Bluetooth;
-			sourceTree = "<group>";
-		};
-		93B72B9F2C40FB3400355965 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				93B72BA02C40FB3400355965 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,7 +136,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93B72BA12C40FB3400355965 /* Preview Assets.xcassets in Resources */,
 				93B72B9E2C40FB3400355965 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,7 +286,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Bluetooth/Preview Content\"";
-				DEVELOPMENT_TEAM = 88L859F7PT;
+				DEVELOPMENT_TEAM = 88KUYJ72XT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Bluetooth/Info.plist;
@@ -330,7 +318,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Bluetooth/Preview Content\"";
-				DEVELOPMENT_TEAM = 88L859F7PT;
+				DEVELOPMENT_TEAM = 88KUYJ72XT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Bluetooth/Info.plist;

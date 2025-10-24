@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftUIJoystick
 
-
 struct Joystick: View {
     
     @EnvironmentObject var bluetoothService: Bluetooth
@@ -58,7 +57,6 @@ struct Joystick: View {
         }
     }
     
-    
     func startData() {
         Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { timer in
             if bluetoothService.peripheralStatus != .connected {
@@ -77,8 +75,6 @@ struct Joystick: View {
             sendData(channel: &channel, data: data)
         }
     }
-    
-    
     
     func sendData(channel: inout UInt8, data: UInt32){
         var packedData = Data()

@@ -9,7 +9,6 @@ import SwiftUI
 import CoreBluetooth
 
 struct PeripheralListView: View {
-    
     @EnvironmentObject private var bluetoothService:Bluetooth
     @State private var expert: Bool = false
     
@@ -17,11 +16,7 @@ struct PeripheralListView: View {
         return bluetoothService.peripheralStatus == .connecting || bluetoothService.peripheralStatus == .connected
     }
     
-    
     var body: some View {
-       
-        
-        
         List(bluetoothService.peripherals, id: \.self) { peripheral in
             if(!bluetoothService.getPeripheralName(peripheral: peripheral).starts(with: "Nicht benanntes Gerät: ") || expert ){
                 Button(bluetoothService.getPeripheralName(peripheral: peripheral)) {
@@ -34,7 +29,6 @@ struct PeripheralListView: View {
         }
         .navigationTitle("Bluetooth")
         .navigationBarTitleDisplayMode(.automatic)
-        
         
         // Conditional rendering based on peripheralStatus
         if bluetoothService.peripheralStatus == .connected {

@@ -12,19 +12,13 @@ import Foundation
 
 
 struct ContentView: View {
-    
     @StateObject private var bluetoothService: Bluetooth = Bluetooth()
-    @State private var isBluetoothListShown = false;
-    
     @StateObject private var monitor = JoystickMonitor()
+    @State private var isBluetoothListShown = false;
     private let draggableDiameter: CGFloat = 150
-    
-    
     var body: some View {
         VStack{
-            
             HStack{
-                
                 Button("Verbinden", systemImage: "antenna.radiowaves.left.and.right"){
                     isBluetoothListShown.toggle()
                 }.sheet(isPresented: $isBluetoothListShown) {
@@ -60,7 +54,6 @@ struct ContentView: View {
     func didDismiss() {
         isBluetoothListShown.toggle()
     }
-    
 }
 
 

@@ -17,10 +17,10 @@ enum Status {
 }
 
 class Bluetooth: NSObject, ObservableObject{
-    
     private let useUUID: Bool = false
     private let cbUUID: CBUUID = CBUUID(string: "68b696d7-320b-4402-a412-d9cee10fc6a3")
     private var centralManger: CBCentralManager?
+    
     @Published var peripherals: [CBPeripheral] = []
     @Published var peripheralNames: [String] = []
     @Published var peripheralStatus: Status = .disconnected
@@ -33,8 +33,6 @@ class Bluetooth: NSObject, ObservableObject{
         super.init()
         self.centralManger = CBCentralManager(delegate: self, queue: .main)
     }
-    
-    
 }
 
 extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate{
@@ -71,7 +69,6 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate{
         self.peripheralStatus = .disconnected
     }
     
-    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services  else {return}
         
@@ -86,7 +83,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate{
          
         for characteristic in characteristics{
             conCharacteristics.append(characteristic)
-            print("\(characteristic.service) : \(characteristic)")
+            print("\(String(describing: characteristic.service)) : \(characteristic)")
         }
     }
     
