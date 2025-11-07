@@ -1,10 +1,3 @@
-//
-//  ConnectView.swift
-//  Bluetooth
-//
-//  Created by Yuki Schäfer on 13.07.24.
-//
-
 import CoreBluetooth
 import SwiftUI
 
@@ -120,7 +113,6 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
     func connect(peripheral: CBPeripheral) {
         self.peripheralStatus = .connecting
         self.centralManger?.connect(peripheral)
-
     }
 
     func getPeripheralName(peripheral: CBPeripheral) -> String {
@@ -141,5 +133,4 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         if self.peripheralStatus != .connected { return }
         self.centralManger?.cancelPeripheralConnection(conPeripheral!)
     }
-
 }

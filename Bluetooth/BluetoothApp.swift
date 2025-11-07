@@ -1,10 +1,3 @@
-//
-//  BluetoothApp.swift
-//  Bluetooth
-//
-//  Created by Yuki Schäfer on 12.07.24.
-//
-
 import SwiftUI
 
 @main

@@ -1,16 +1,9 @@
-//
-//  PerepharieList.swift
-//  Bluetooth
-//
-//  Created by Yuki Schäfer on 15.07.24.
-//
-
 import CoreBluetooth
 import SwiftUI
 
 struct PeripheralListView: View {
     @EnvironmentObject private var bluetoothService: Bluetooth
-    @State private var expert: Bool = false
+    @Binding public var isExpert: Bool
 
     var isConnected: Bool {
         return bluetoothService.peripheralStatus == .connecting
@@ -19,17 +12,18 @@ struct PeripheralListView: View {
 
     var body: some View {
         List(bluetoothService.peripherals, id: \.self) { peripheral in
-            if !bluetoothService.getPeripheralName(peripheral: peripheral)
-                .starts(with: "Nicht benanntes Gerät: ") || expert
+            let bTN: String = bluetoothService.getPeripheralName(peripheral: peripheral)
+            
+            if !bTN.starts(with: "Nicht benanntes Gerät: ") && (bTN.contains("Yuki") || isExpert)
             {
-                Button(
-                    bluetoothService.getPeripheralName(peripheral: peripheral)
-                ) {
-                    bluetoothService.connect(peripheral: peripheral)
-                }
-                .listStyle(.plain)
-                .disabled(isConnected)
-                .strikethrough(isConnected)
+                    Button(
+                        bluetoothService.getPeripheralName(peripheral: peripheral)
+                    ) {
+                        bluetoothService.connect(peripheral: peripheral)
+                    }
+                    .listStyle(.plain)
+                    .disabled(isConnected)
+                    .strikethrough(isConnected)
             }
         }
         .navigationTitle("Bluetooth")
@@ -45,8 +39,4 @@ struct PeripheralListView: View {
 
         }
     }
-}
-
-#Preview {
-    PeripheralListView()
 }

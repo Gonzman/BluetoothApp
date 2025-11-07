@@ -1,23 +1,14 @@
-//
-//  JoyStick.swift
-//  Bluetooth
-//
-//  Created by Yuki Schäfer on 16.07.24.
-//
-
 import SwiftUI
 import SwiftUIJoystick
 
 struct Joystick: View {
-
     @EnvironmentObject var bluetoothService: Bluetooth
-
     @ObservedObject public var monitor: JoystickMonitor
-
-    private let dragDiameter: CGFloat
-
+    
     private let shape: JoystickShape
-
+    
+    private let dragDiameter: CGFloat
+    
     private let xID: UInt8
     private let yID: UInt8
 
