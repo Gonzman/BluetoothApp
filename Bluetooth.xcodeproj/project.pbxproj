@@ -16,6 +16,7 @@
 		93CDE64B2C46D3F100F281AC /* JoyStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE64A2C46D3F100F281AC /* JoyStick.swift */; };
 		D62D66412EBE8E3900393518 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66402EBE8E3900393518 /* Settings.swift */; };
 		D62D66432EBE8F9D00393518 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66422EBE8F9D00393518 /* Components.swift */; };
+		D62D66452EBE9C5400393518 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = D62D66442EBE9C4F00393518 /* TODO.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		93CDE64A2C46D3F100F281AC /* JoyStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyStick.swift; sourceTree = "<group>"; };
 		D62D66402EBE8E3900393518 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D62D66422EBE8F9D00393518 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		D62D66442EBE9C4F00393518 /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 		93B72B982C40FB3200355965 /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				D62D66442EBE9C4F00393518 /* TODO.txt */,
 				936AF5E62C96F62F00F283AE /* Info.plist */,
 				93B72B992C40FB3200355965 /* BluetoothApp.swift */,
 				93B72B9B2C40FB3200355965 /* ContentView.swift */,
@@ -139,6 +142,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D62D66452EBE9C5400393518 /* TODO.txt in Resources */,
 				93B72B9E2C40FB3400355965 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

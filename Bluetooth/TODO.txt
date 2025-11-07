@@ -1,0 +1,5 @@
+Y-Balken ist zu gequetscht wenn Y nahe 0 ist
+Nitro Balken ist nicht smooth
+Elemente sind nicht Benutzerfreundlich angeordnet
+Bluetooth Empfänger (z.B. um die aktuelle Zeit oder Zustand von dem RC-Auto anzuzeigen)
+Deaktivierter Disconnect Button hat zu viel padding zum Trennbalken
