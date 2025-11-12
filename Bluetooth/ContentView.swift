@@ -14,11 +14,34 @@ struct ContentView: View {
     @State private var isConnected = true
     @State private var showSettings = false
     @State private var isDebug = false
+    @State private var isBoosting = false
+    
+    @State private var isStopwatchRunning = false
+    @State private var stopwatchStartDate: Date? = nil
+    @State private var elapsedTime: TimeInterval = 0
+    @State private var hasReceivedFirstJoystickInput = false
+    @State private var timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     
     private let nitroMax: CGFloat = 150
 
     var body: some View {
         VStack(spacing: 0) {
+            // MARK: Stopwatch Top-Center
+            HStack {
+                Spacer()
+                VStack(spacing: 6) {
+                    Text(formattedElapsed(elapsedTime))
+                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .accessibilityLabel("Stopwatch time")
+                }
+                Spacer()
+            }
+            .padding(.top, 8)
+            .onReceive(timer) { _ in
+                guard isStopwatchRunning, let start = stopwatchStartDate else { return }
+                elapsedTime = Date().timeIntervalSince(start)
+            }
+            
             // MARK: Top Bar
             HStack {
                 Button {
@@ -75,13 +98,15 @@ struct ContentView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Label("Settings", systemImage: "gearshape.fill")
+                        Label("Einstellungen", systemImage: "gearshape.fill")
                             .font(.body)
                             .padding(.vertical, 8)
                             .padding(.horizontal, 12)
                     }
                     .sheet(isPresented: $showSettings) {
-                        SettingsView(isDebug: $isDebug)
+                        SettingsView(isDebug: $isDebug, onReset: {
+                            resetStopwatch()
+                        })
                     }
                 }
                 .background(
@@ -107,6 +132,10 @@ struct ContentView: View {
                     )
                     BoostButton(boostLevel: $boostLevel, maxLevel: nitroMax)
                         .frame(width: 110, height: 52)
+                        .simultaneousGesture(DragGesture(minimumDistance: 0)
+                            .onChanged { _ in isBoosting = true }
+                            .onEnded { _ in isBoosting = false })
+                    
                     YVerticalBar(
                         label: "Y",
                         yValue: monitor.xyPoint.y,
@@ -132,6 +161,18 @@ struct ContentView: View {
                         yID: 1
                     )
                     .environmentObject(bluetoothService)
+                    .onChange(of: isBoosting) { oldValue, newValue in
+                        // Activate boost while button is pressed
+                        // Add +50 in Joystick's startData via isBoostActive
+                        Joystick(monitor: monitor, width: 300, shape: .circle, xID: 0, yID: 1).boost(newValue)
+                    }
+                    .onChange(of: monitor.xyPoint) { oldPoint, newPoint in
+                        // Start stopwatch on first joystick input
+                        if !hasReceivedFirstJoystickInput {
+                            hasReceivedFirstJoystickInput = true
+                            startStopwatch()
+                        }
+                    }
                     .padding(.trailing, 24)
                     .padding(.bottom, 24)
                 }
@@ -141,19 +182,31 @@ struct ContentView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear { startNitroRecharge() }
+    }
+    
+    private func formattedElapsed(_ interval: TimeInterval) -> String {
+        let totalMilliseconds = Int((interval * 1000).rounded())
+        let minutes = totalMilliseconds / 60000
+        let seconds = (totalMilliseconds % 60000) / 1000
+        let milliseconds = (totalMilliseconds % 1000) / 10 // two digits
+        return String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
     }
 
-    // MARK: Nitro Recharge Logic
-    func startNitroRecharge() {
-        Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { _ in
-            if boostLevel < nitroMax {
-                withAnimation(.linear(duration: 0.08)) {
-                    boostLevel = min(nitroMax, boostLevel + 0.6)
-                }
-            } else {
-                boostLevel = nitroMax
-            }
+    private func startStopwatch() {
+        if !isStopwatchRunning {
+            stopwatchStartDate = Date().addingTimeInterval(-elapsedTime)
+            isStopwatchRunning = true
         }
+    }
+
+    private func stopStopwatch() {
+        isStopwatchRunning = false
+    }
+
+    private func resetStopwatch() {
+        stopStopwatch()
+        elapsedTime = 0
+        stopwatchStartDate = nil
+        hasReceivedFirstJoystickInput = false
     }
 }

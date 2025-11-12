@@ -110,6 +110,15 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         }
     }
 
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+        if let e = error {
+            print("ERROR didUpdateValue \(e)")
+            return
+        }
+        guard let data = characteristic.value else { return }
+        print("counter is \(data)")
+    }
+    
     func connect(peripheral: CBPeripheral) {
         self.peripheralStatus = .connecting
         self.centralManger?.connect(peripheral)

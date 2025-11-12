@@ -13,7 +13,7 @@
 		93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B72B9B2C40FB3200355965 /* ContentView.swift */; };
 		93B72B9E2C40FB3400355965 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93B72B9D2C40FB3400355965 /* Assets.xcassets */; };
 		93CDE6472C46C64800F281AC /* SwiftUIJoystick in Frameworks */ = {isa = PBXBuildFile; productRef = 93CDE6462C46C64800F281AC /* SwiftUIJoystick */; };
-		93CDE64B2C46D3F100F281AC /* JoyStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE64A2C46D3F100F281AC /* JoyStick.swift */; };
+		93CDE64B2C46D3F100F281AC /* Joystick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE64A2C46D3F100F281AC /* Joystick.swift */; };
 		D62D66412EBE8E3900393518 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66402EBE8E3900393518 /* Settings.swift */; };
 		D62D66432EBE8F9D00393518 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66422EBE8F9D00393518 /* Components.swift */; };
 		D62D66452EBE9C5400393518 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = D62D66442EBE9C4F00393518 /* TODO.txt */; };
@@ -23,11 +23,11 @@
 		9336AD382C458112000CFF6B /* PeripheralListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralListView.swift; sourceTree = "<group>"; };
 		933DE7EA2C42C5E60011307B /* Bluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bluetooth.swift; sourceTree = "<group>"; };
 		936AF5E62C96F62F00F283AE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		93B72B962C40FB3200355965 /* Bluetooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bluetooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		93B72B962C40FB3200355965 /* RC-Fernsteuerung.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RC-Fernsteuerung.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93B72B992C40FB3200355965 /* BluetoothApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothApp.swift; sourceTree = "<group>"; };
 		93B72B9B2C40FB3200355965 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		93B72B9D2C40FB3400355965 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		93CDE64A2C46D3F100F281AC /* JoyStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyStick.swift; sourceTree = "<group>"; };
+		93CDE64A2C46D3F100F281AC /* Joystick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Joystick.swift; sourceTree = "<group>"; };
 		D62D66402EBE8E3900393518 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D62D66422EBE8F9D00393518 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		D62D66442EBE9C4F00393518 /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
@@ -56,7 +56,7 @@
 		93B72B972C40FB3200355965 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				93B72B962C40FB3200355965 /* Bluetooth.app */,
+				93B72B962C40FB3200355965 /* RC-Fernsteuerung.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,7 +71,7 @@
 				93B72B9D2C40FB3400355965 /* Assets.xcassets */,
 				933DE7EA2C42C5E60011307B /* Bluetooth.swift */,
 				9336AD382C458112000CFF6B /* PeripheralListView.swift */,
-				93CDE64A2C46D3F100F281AC /* JoyStick.swift */,
+				93CDE64A2C46D3F100F281AC /* Joystick.swift */,
 				D62D66402EBE8E3900393518 /* Settings.swift */,
 				D62D66422EBE8F9D00393518 /* Components.swift */,
 			);
@@ -81,9 +81,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		93B72B952C40FB3200355965 /* Bluetooth */ = {
+		93B72B952C40FB3200355965 /* RC-Fernsteuerung */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 93B72BA42C40FB3400355965 /* Build configuration list for PBXNativeTarget "Bluetooth" */;
+			buildConfigurationList = 93B72BA42C40FB3400355965 /* Build configuration list for PBXNativeTarget "RC-Fernsteuerung" */;
 			buildPhases = (
 				93B72B922C40FB3200355965 /* Sources */,
 				93B72B932C40FB3200355965 /* Frameworks */,
@@ -93,12 +93,12 @@
 			);
 			dependencies = (
 			);
-			name = Bluetooth;
+			name = "RC-Fernsteuerung";
 			packageProductDependencies = (
 				93CDE6462C46C64800F281AC /* SwiftUIJoystick */,
 			);
 			productName = Bluetooth;
-			productReference = 93B72B962C40FB3200355965 /* Bluetooth.app */;
+			productReference = 93B72B962C40FB3200355965 /* RC-Fernsteuerung.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -116,7 +116,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 93B72B912C40FB3200355965 /* Build configuration list for PBXProject "Bluetooth" */;
+			buildConfigurationList = 93B72B912C40FB3200355965 /* Build configuration list for PBXProject "RC-Fernsteuerung" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -132,7 +132,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				93B72B952C40FB3200355965 /* Bluetooth */,
+				93B72B952C40FB3200355965 /* RC-Fernsteuerung */,
 			);
 		};
 /* End PBXProject section */
@@ -160,7 +160,7 @@
 				D62D66432EBE8F9D00393518 /* Components.swift in Sources */,
 				93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */,
 				93B72B9A2C40FB3200355965 /* BluetoothApp.swift in Sources */,
-				93CDE64B2C46D3F100F281AC /* JoyStick.swift in Sources */,
+				93CDE64B2C46D3F100F281AC /* Joystick.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +365,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		93B72B912C40FB3200355965 /* Build configuration list for PBXProject "Bluetooth" */ = {
+		93B72B912C40FB3200355965 /* Build configuration list for PBXProject "RC-Fernsteuerung" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				93B72BA22C40FB3400355965 /* Debug */,
@@ -374,7 +374,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		93B72BA42C40FB3400355965 /* Build configuration list for PBXNativeTarget "Bluetooth" */ = {
+		93B72BA42C40FB3400355965 /* Build configuration list for PBXNativeTarget "RC-Fernsteuerung" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				93B72BA52C40FB3400355965 /* Debug */,
