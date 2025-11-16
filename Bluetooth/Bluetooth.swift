@@ -104,6 +104,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
 
         for characteristic in characteristics {
             conCharacteristics.append(characteristic)
+            peripheral.setNotifyValue(true, for: characteristic)
             print(
                 "\(String(describing: characteristic.service)) : \(characteristic)"
             )

@@ -103,6 +103,6 @@ struct Joystick: View {
             for: self.bluetoothService.conCharacteristics.last!,
             type: .withResponse
         )
-        print(packedData as NSData)
+        //print(packedData as NSData)
     }
 }
