@@ -110,15 +110,26 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
             )
         }
     }
-
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+    
+    func peripheral(_ peripheral: CBPeripheral,
+                    didUpdateValueFor characteristic: CBCharacteristic,
+                    error: (any Error)?) {
+        
         if let e = error {
             print("ERROR didUpdateValue \(e)")
             return
         }
+        
         guard let data = characteristic.value else { return }
-        print("counter is \(data)")
+        
+        if data.count == 1 {
+            let byte = data[data.startIndex]
+            print("One byte received: \(byte)")
+        } else {
+            print("Received data (\(data.count) bytes): \(data as NSData)")
+        }
     }
+
     
     func connect(peripheral: CBPeripheral) {
         self.peripheralStatus = .connecting
