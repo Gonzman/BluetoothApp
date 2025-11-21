@@ -10,7 +10,6 @@ struct ContentView: View {
     
     @State private var isBluetoothListShown = false
     @State private var isExpert = false
-    @State private var boostLevel: CGFloat = 150
     @State private var isConnected = true
     @State private var showSettings = false
     @State private var isDebug = false
@@ -22,10 +21,67 @@ struct ContentView: View {
     @State private var hasReceivedFirstJoystickInput = false
     @State private var timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     
+    @State private var nitroLevel: CGFloat = 150
     private let nitroMax: CGFloat = 150
+    private let joystickMax: CGFloat = 300
 
     var body: some View {
         VStack(spacing: 0) {
+            // MARK: Top Bar
+            HStack {
+                // Left: Connect/Disconnect Toggle Button (kept inside its own HStack)
+                HStack(spacing: 0) {
+                    Button {
+                        if isConnected {
+                            // Disconnect when connected
+                            bluetoothService.disconnect()
+                            isConnected = false
+                            isConnectedGlobal = false
+                        } else {
+                            // Show peripheral list to connect when disconnected
+                            isBluetoothListShown.toggle()
+                        }
+                    } label: {
+                        Label(isConnected ? "Trennen" : "Verbinden", systemImage: "antenna.radiowaves.left.and.right")
+                            .labelStyle(.titleAndIcon)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray.opacity(0.25))
+                            )
+                    }
+                    .sheet(isPresented: $isBluetoothListShown) {
+                        VStack {
+                            PeripheralListView(isExpert: $isExpert)
+                                .environmentObject(bluetoothService)
+                            Button("Alle Anzeigen") { isExpert.toggle() }
+                            Button("Abbrechen") { isBluetoothListShown.toggle() }
+                        }
+                        .padding()
+                    }
+                }
+
+                Spacer()
+
+                // Right: Settings Button (icon only, no HStack wrapper)
+                Button {
+                    showSettings = true
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                        .font(.body)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
+                }
+                .sheet(isPresented: $showSettings) {
+                    SettingsView(isDebug: $isDebug, onReset: {
+                        reset()
+                    })
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 14)
+            
             // MARK: Stopwatch Top-Center
             HStack {
                 Spacer()
@@ -42,128 +98,53 @@ struct ContentView: View {
                 elapsedTime = Date().timeIntervalSince(start)
             }
             
-            // MARK: Top Bar
-            HStack {
-                Button {
-                    if !isConnected {
-                        isBluetoothListShown.toggle()
-                    }
-                } label: {
-                    Label(
-                        isConnected ? "" : "Verbinden",
-                        systemImage: "antenna.radiowaves.left.and.right"
+            GaugeViewXKRepresentable(
+                goToValue: .constant(Double(max((monitor.xyPoint.y * -1) + (isBoosting ? 50 : 0), -50))),
+                gaugeValues: .range(start: -50, end: joystickMax + 50, parts: 10),
+                gaugeColor: .gradient([.green, .yellow, .red]),
+                        gaugeWidth: 20
                     )
-                    .labelStyle(.titleAndIcon)
-                    .opacity(isConnected ? 0.5 : 1)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                }
-                .disabled(isConnected)
-                .sheet(isPresented: $isBluetoothListShown) {
-                    VStack {
-                        PeripheralListView(isExpert: $isExpert)
-                            .environmentObject(bluetoothService)
-                        Button("Alle Anzeigen") { isExpert.toggle() }
-                        Button("Abbrechen") { isBluetoothListShown.toggle() }
-                    }
+                    .frame(width: 250, height: 250)
                     .padding()
-                }
-
-                Spacer()
-
-                // MARK: Disconnect + Settings Section
-                HStack(spacing: 0) {
-                    // Disconnect Button
-                    Button {
-                        if isConnected {
-                            bluetoothService.disconnect()
-                            isConnected = false
-                            isConnectedGlobal = false
-                        }
-                    } label: {
-                        Label(
-                            isConnected ? "Trennen" : "",
-                            systemImage: "power"
-                        )
-                        .labelStyle(.titleAndIcon)
-                        .opacity(isConnected ? 1 : 0.5)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                    }
-                    .disabled(!isConnected)
-
-                    Divider().frame(height: 28).padding(.horizontal, 6)
-
-                    // Settings Button
-                    Button {
-                        showSettings = true
-                    } label: {
-                        Label("Einstellungen", systemImage: "gearshape.fill")
-                            .font(.body)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                    }
-                    .sheet(isPresented: $showSettings) {
-                        SettingsView(isDebug: $isDebug, onReset: {
-                            resetStopwatch()
-                        })
-                    }
-                }
-                .background(
-                    RoundedRectangle(cornerRadius: 10).stroke(
-                        Color.gray.opacity(0.25)
-                    )
-                )
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 14)
-
+            
             Spacer()
-
+            
+            
+            
             // MARK: Main Control Area
-            HStack(alignment: .bottom, spacing: 20) {
-                // MARK: Left Controls (Nitro, Boost, Y Bar)
-                VStack(spacing: 18) {
-                    VerticalBar(
-                        label: "Nitro",
-                        fillHeight: boostLevel,
-                        maxHeight: nitroMax,
-                        color: .blue
-                    )
-                    BoostButton(boostLevel: $boostLevel, maxLevel: nitroMax)
-                        .frame(width: 110, height: 52)
+            HStack(alignment: .bottom, spacing: 0) {
+                // Left bottom corner: Nitro + Boost
+                VStack() {
+                    HStack {
+                        VerticalBar(
+                            label: "Nitro",
+                            fillHeight: nitroLevel,
+                            color: .blue
+                        )
+                    }
+                    .frame(width: 200, height: nitroMax, alignment: .center)
+
+                    BoostButton(boostLevel: $nitroLevel, enabled: isStopwatchRunning, maxLevel: nitroMax)
+                        .frame(width: 200, height: 200)
                         .simultaneousGesture(DragGesture(minimumDistance: 0)
                             .onChanged { _ in isBoosting = true }
                             .onEnded { _ in isBoosting = false })
-                    
-                    YVerticalBar(
-                        label: "Y",
-                        yValue: monitor.xyPoint.y,
-                        maxHeight: nitroMax,
-                        color: .orange
-                    )
                 }
-                .padding(.leading, 28)
+                .padding([.leading, .bottom], 24)
 
-                // MARK: X Bar
-                HorizontalMover(value: monitor.xyPoint.x, rectWidth: 48)
-                    .frame(height: 36)
-                    .padding(.horizontal, 24)
+                Spacer(minLength: 0)
 
-                // MARK: Joystick (Right Corner)
+                // Right bottom corner: Joystick
                 VStack {
-                    Spacer()
                     Joystick(
                         monitor: monitor,
-                        width: 300,
+                        width: joystickMax,
                         shape: .circle,
                         xID: 0,
                         yID: 1
                     )
                     .environmentObject(bluetoothService)
                     .onChange(of: isBoosting) { oldValue, newValue in
-                        // Activate boost while button is pressed
-                        // Add +50 in Joystick's startData via isBoostActive
                         Joystick(monitor: monitor, width: 300, shape: .circle, xID: 0, yID: 1).boost(newValue)
                     }
                     .onChange(of: monitor.xyPoint) { oldPoint, newPoint in
@@ -173,11 +154,9 @@ struct ContentView: View {
                             startStopwatch()
                         }
                     }
-                    .padding(.trailing, 24)
-                    .padding(.bottom, 24)
                 }
+                .padding([.trailing, .bottom], 24)
             }
-            .padding(.bottom, 16)
 
             Spacer()
         }
@@ -203,10 +182,15 @@ struct ContentView: View {
         isStopwatchRunning = false
     }
 
-    private func resetStopwatch() {
+    private func reset() {
+        // Reset Stopwatch
         stopStopwatch()
         elapsedTime = 0
         stopwatchStartDate = nil
         hasReceivedFirstJoystickInput = false
+        
+        // Reset Nitro
+        nitroLevel = 150
     }
 }
+

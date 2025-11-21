@@ -9,6 +9,7 @@ struct SettingsView: View {
             Toggle("Debug", isOn: $isDebug)
             Button("Reset", role: .destructive) {
                 onReset?()
+                print("Reset RC-Car")
             }
         }
         .padding()

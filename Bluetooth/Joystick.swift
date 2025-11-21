@@ -68,9 +68,14 @@ struct Joystick: View {
         }
     }
     
-    func mapValue(_ value: UInt32, from: ClosedRange<UInt32>, to: ClosedRange<Double>) -> UInt32 {
-        let scaled = Double(value - from.lowerBound) / Double(from.upperBound - from.lowerBound)
-        return UInt32(to.lowerBound + scaled * (to.upperBound - to.lowerBound))
+    /// Maps a value from one range to another safely using Double math, returning a Float.
+    /// The result is clamped to the destination range to avoid out-of-range conversions.
+    func mapValue(_ value: Double, from: ClosedRange<Double>, to: ClosedRange<Double>) -> Float {
+        guard from.upperBound != from.lowerBound else { return Float(to.lowerBound) }
+        let scaled = (value - from.lowerBound) / (from.upperBound - from.lowerBound)
+        let mapped = to.lowerBound + scaled * (to.upperBound - to.lowerBound)
+        let clamped = min(max(mapped, to.lowerBound), to.upperBound)
+        return Float(clamped)
     }
 
     func startData() {
@@ -81,9 +86,13 @@ struct Joystick: View {
             }
             
             func sendMapped(_ id: inout UInt8, _ val: CGFloat) {
-                let data = Float(min(val, 150) + CGFloat(isBoostActive ? 50 : 0)).bitPattern
-                let mapped = mapValue(data, from: 0...UInt32.max, to: 0...200)
-                sendData(channel: &id, data: mapped)
+                // Base value with optional boost applied
+                let base = min(val, 150) + CGFloat(isBoostActive ? 50 : 0)
+                // We map from an expected input range of 0...200 (after boost/clamp) to -50...200
+                let mappedFloat = mapValue(Double(base), from: 0.0...200.0, to: -50.0...200.0)
+                // Transmit as 32-bit float bit pattern
+                let bits = mappedFloat.bitPattern
+                sendData(channel: &id, dataBits: bits)
             }
 
             var x = xID
@@ -94,10 +103,13 @@ struct Joystick: View {
         }
     }
 
-    func sendData(channel: inout UInt8, data: UInt32) {
+    func sendData(channel: inout UInt8, dataBits: UInt32) {
         var packedData = Data()
         packedData.append(&channel, count: 1)  // 1 byte for channel
-        packedData.append(withUnsafeBytes(of: data) { Data($0) })
+        var bitsLE = dataBits
+        withUnsafeBytes(of: &bitsLE) { rawBuf in
+            packedData.append(rawBuf.bindMemory(to: UInt8.self))
+        }
         self.bluetoothService.conPeripheral?.writeValue(
             packedData,
             for: self.bluetoothService.conCharacteristics.last!,
