@@ -10,7 +10,7 @@ struct ContentView: View {
     
     @State private var isBluetoothListShown = false
     @State private var isExpert = false
-    @State private var isConnected = true
+    @State private var isConnected = false
     @State private var showSettings = false
     @State private var isDebug = false
     @State private var isBoosting = false
@@ -24,6 +24,10 @@ struct ContentView: View {
     @State private var nitroLevel: CGFloat = 150
     private let nitroMax: CGFloat = 150
     private let joystickMax: CGFloat = 300
+    
+    private var isBoostButtonEnabled: Bool {
+        isStopwatchRunning && nitroLevel > 0
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,7 +39,6 @@ struct ContentView: View {
                         if isConnected {
                             // Disconnect when connected
                             bluetoothService.disconnect()
-                            isConnected = false
                             isConnectedGlobal = false
                         } else {
                             // Show peripheral list to connect when disconnected
@@ -99,8 +102,8 @@ struct ContentView: View {
             }
             
             GaugeViewXKRepresentable(
-                goToValue: .constant(Double(max((monitor.xyPoint.y * -1) + (isBoosting ? 50 : 0), -50))),
-                gaugeValues: .range(start: -50, end: joystickMax + 50, parts: 10),
+                goToValue: .constant(Double(abs((monitor.xyPoint.y * -1) + ((isBoostButtonEnabled && isBoosting) ? 50 : 0)))),
+                gaugeValues: .range(start: 0, end: joystickMax + 50, parts: 10),
                 gaugeColor: .gradient([.green, .yellow, .red]),
                         gaugeWidth: 20
                     )
@@ -124,11 +127,8 @@ struct ContentView: View {
                     }
                     .frame(width: 200, height: nitroMax, alignment: .center)
 
-                    BoostButton(boostLevel: $nitroLevel, enabled: isStopwatchRunning, maxLevel: nitroMax)
+                    BoostButton(boostLevel: $nitroLevel, isBoosting: $isBoosting, enabled: isBoostButtonEnabled, maxLevel: nitroMax)
                         .frame(width: 200, height: 200)
-                        .simultaneousGesture(DragGesture(minimumDistance: 0)
-                            .onChanged { _ in isBoosting = true }
-                            .onEnded { _ in isBoosting = false })
                 }
                 .padding([.leading, .bottom], 24)
 
@@ -144,14 +144,10 @@ struct ContentView: View {
                         yID: 1
                     )
                     .environmentObject(bluetoothService)
-                    .onChange(of: isBoosting) { oldValue, newValue in
-                        Joystick(monitor: monitor, width: 300, shape: .circle, xID: 0, yID: 1).boost(newValue)
-                    }
                     .onChange(of: monitor.xyPoint) { oldPoint, newPoint in
-                        // Start stopwatch on first joystick input
+                        // Start on first joystick input
                         if !hasReceivedFirstJoystickInput {
-                            hasReceivedFirstJoystickInput = true
-                            startStopwatch()
+                            start()
                         }
                     }
                 }
@@ -161,6 +157,19 @@ struct ContentView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onChange(of: bluetoothService.peripheralStatus) { oldStatus, newStatus in
+            switch newStatus {
+            case .connected:
+                isConnected = true
+                isConnectedGlobal = true
+                isBluetoothListShown = false
+            case .disconnected:
+                isConnected = false
+                isConnectedGlobal = false
+            default:
+                break
+            }
+        }
     }
     
     private func formattedElapsed(_ interval: TimeInterval) -> String {
@@ -169,6 +178,13 @@ struct ContentView: View {
         let seconds = (totalMilliseconds % 60000) / 1000
         let milliseconds = (totalMilliseconds % 1000) / 10 // two digits
         return String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
+    }
+
+    private func start() {
+        if !hasReceivedFirstJoystickInput {
+            hasReceivedFirstJoystickInput = true
+        }
+        startStopwatch()
     }
 
     private func startStopwatch() {

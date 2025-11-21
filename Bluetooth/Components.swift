@@ -43,21 +43,24 @@ struct VerticalBar: View {
 }
 
 // MARK: BoostButton
+/// A button that allows boosting with press-and-hold gesture.
+/// The parent view can observe the boosting state via the `isBoosting` binding.
 struct BoostButton: View {
     @Binding var boostLevel: CGFloat
-    
-    @State private var pressing = false
-    @State private var timer: Timer?
-    @State public var enabled: Bool
-    
+    @Binding var isBoosting: Bool
+
+    var enabled: Bool
     var maxLevel: CGFloat
-    
+
+    @State private var timer: Timer?
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .foregroundColor(
-                    enabled ?
-                    pressing ? Color.red : Color.red.opacity(0.9) : Color.gray
+                    enabled
+                    ? (isBoosting ? Color.red : Color.red.opacity(0.9))
+                    : Color.gray
                 )
             HStack(spacing: 10) {
                 Image(systemName: "flame.fill")
@@ -66,17 +69,26 @@ struct BoostButton: View {
             }
             .foregroundColor(.white)
         }
-        .gesture(DragGesture(minimumDistance: 0)
-            .onChanged { _ in startPress() }
-            .onEnded { _ in endPress() })
-        .onDisappear { endPress() }
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if enabled {
+                        startPress()
+                    }
+                }
+                .onEnded { _ in
+                    endPress()
+                }
+        )
+        .onDisappear {
+            endPress()
+        }
     }
 
-    func startPress() {
-        if (!enabled) { return }
-        if pressing { return }
-        
-        pressing = true
+    private func startPress() {
+        guard enabled else { return }
+        if isBoosting { return }
+        isBoosting = true
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
             withAnimation(.linear(duration: 0.03)) {
@@ -85,8 +97,9 @@ struct BoostButton: View {
         }
     }
 
-    func endPress() {
-        pressing = false
+    private func endPress() {
+        if !isBoosting { return }
+        isBoosting = false
         timer?.invalidate()
         timer = nil
     }
