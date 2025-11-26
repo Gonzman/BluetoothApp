@@ -17,6 +17,8 @@
 		D62D66412EBE8E3900393518 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66402EBE8E3900393518 /* Settings.swift */; };
 		D62D66432EBE8F9D00393518 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66422EBE8F9D00393518 /* Components.swift */; };
 		D62D66452EBE9C5400393518 /* TODO.txt in Resources */ = {isa = PBXBuildFile; fileRef = D62D66442EBE9C4F00393518 /* TODO.txt */; };
+		D65CDF352ED7471D00DF71D4 /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D65CDF342ED7471D00DF71D4 /* Notifier.swift */; };
+		D65CDF372ED7472C00DF71D4 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D65CDF362ED7472C00DF71D4 /* Backend.swift */; };
 		D6D108792EC4D29B00FF6BCE /* Gauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D108782EC4D29B00FF6BCE /* Gauge.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +34,8 @@
 		D62D66402EBE8E3900393518 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D62D66422EBE8F9D00393518 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		D62D66442EBE9C4F00393518 /* TODO.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
+		D65CDF342ED7471D00DF71D4 /* Notifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifier.swift; sourceTree = "<group>"; };
+		D65CDF362ED7472C00DF71D4 /* Backend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
 		D6D108782EC4D29B00FF6BCE /* Gauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gauge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,6 +70,8 @@
 		93B72B982C40FB3200355965 /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				D65CDF362ED7472C00DF71D4 /* Backend.swift */,
+				D65CDF342ED7471D00DF71D4 /* Notifier.swift */,
 				D62D66442EBE9C4F00393518 /* TODO.txt */,
 				936AF5E62C96F62F00F283AE /* Info.plist */,
 				93B72B992C40FB3200355965 /* BluetoothApp.swift */,
@@ -161,9 +167,11 @@
 				9336AD392C458112000CFF6B /* PeripheralListView.swift in Sources */,
 				933DE7EB2C42C5E60011307B /* Bluetooth.swift in Sources */,
 				D62D66432EBE8F9D00393518 /* Components.swift in Sources */,
+				D65CDF372ED7472C00DF71D4 /* Backend.swift in Sources */,
 				93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */,
 				93B72B9A2C40FB3200355965 /* BluetoothApp.swift in Sources */,
 				93CDE64B2C46D3F100F281AC /* Joystick.swift in Sources */,
+				D65CDF352ED7471D00DF71D4 /* Notifier.swift in Sources */,
 				D6D108792EC4D29B00FF6BCE /* Gauge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
