@@ -89,10 +89,13 @@ struct Joystick: View {
                 // Clamp input to ±150, which represents full range of joystick
                 let clamped = max(min(val, 150), -150)
                 // Apply boost if active (adds to positive values only)
-                let base = clamped + CGFloat(isBoostActive && clamped > 0 ? 50 : 0)
-                // Map from clamped range (±150, or ±200 with boost) to -50...200
-                // At rest (0): maps to 0. Full reverse (-150): maps to -50. Full forward (+150): maps to 200.
-                let mappedFloat = mapValue(Double(base), from: -150.0...200.0, to: -50.0...200.0)
+                let boost = CGFloat(isBoostActive && clamped > 0 ? 50 : 0)
+                let base = clamped + boost
+                // Map from joystick range to 0...150
+                // At rest (0): maps to 0. Full reverse (-150): maps to -75. Full forward (+150): maps to 75.
+                // With boost: full forward (+200) maps to 100
+                let inputMax = 150.0 + (isBoostActive && clamped > 0 ? 50.0 : 0.0)
+                let mappedFloat = mapValue(Double(base), from: -150.0...inputMax, to: -75.0...75.0)
                 // Transmit as 32-bit float bit pattern
                 let bits = mappedFloat.bitPattern
                 sendData(channel: &id, dataBits: bits)
