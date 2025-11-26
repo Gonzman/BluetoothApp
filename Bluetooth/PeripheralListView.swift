@@ -16,7 +16,7 @@ struct PeripheralListView: View {
             List(bluetoothService.peripherals, id: \.self) { peripheral in
                 let bTN: String = bluetoothService.getPeripheralName(peripheral: peripheral)
                 
-                if !bTN.starts(with: "Nicht benanntes Gerät: ") && (bTN.contains("FHS") || isExpert)
+                if !bTN.starts(with: "Nicht benanntes Gerät: ") && ((bTN.contains("FHS") || bTN.contains("BT05") || isExpert))
                 {
                         Button(
                             bluetoothService.getPeripheralName(peripheral: peripheral)
@@ -31,7 +31,6 @@ struct PeripheralListView: View {
             .navigationTitle("Bluetooth")
             .navigationBarTitleDisplayMode(.automatic)
 
-            // Conditional rendering based on peripheralStatus
             if bluetoothService.peripheralStatus == .connected {
                 Text(
                     bluetoothService.getPeripheralName(

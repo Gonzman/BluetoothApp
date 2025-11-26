@@ -65,7 +65,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         self.peripheralStatus = .connected
         print("Bluetooth.centralManager.didConnect: connected to -> \(getPeripheralName(peripheral: peripheral))")
         self.centralManger?.stopScan()
-        print(centralManger?.isScanning as Any)
+        // print(centralManger?.isScanning as Any)
     }
 
     func centralManager(
@@ -134,9 +134,9 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if data.count == 1 {
             let byte = data[data.startIndex]
-            print("One byte received: \(byte)")
+            // print("One byte received: \(byte)")
         } else {
-            print("Received data (\(data.count) bytes): \(data as NSData)")
+            // print("Received data (\(data.count) bytes): \(data as NSData)")
         }
     }
 
