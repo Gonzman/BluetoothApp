@@ -63,6 +63,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         conPeripheral?.discoverServices(nil)
 
         self.peripheralStatus = .connected
+        print("Bluetooth.centralManager.didConnect: connected to -> \(getPeripheralName(peripheral: peripheral))")
         self.centralManger?.stopScan()
         print(centralManger?.isScanning as Any)
     }
@@ -72,7 +73,12 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         didFailToConnect peripheral: CBPeripheral,
         error: Error?
     ) {
-        self.peripheralStatus = .error
+        // treat a failed connection as a disconnect so UI resets and we clear state
+        print("Bluetooth.centralManager.didFailToConnect: failed to connect -> \(getPeripheralName(peripheral: peripheral)), error: \(String(describing: error))")
+        self.peripheralStatus = .disconnected
+        self.conPeripheral = nil
+        self.conServices = []
+        self.conCharacteristics = []
     }
 
     func centralManager(
@@ -81,6 +87,10 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         error: Error?
     ) {
         self.peripheralStatus = .disconnected
+        print("Bluetooth.centralManager.didDisconnect: disconnected -> \(getPeripheralName(peripheral: peripheral))")
+        self.conPeripheral = nil
+        self.conServices = []
+        self.conCharacteristics = []
     }
 
     func peripheral(
@@ -132,7 +142,10 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
 
     
     func connect(peripheral: CBPeripheral) {
+        // keep a reference to the peripheral immediately so we can cancel while connecting
+        self.conPeripheral = peripheral
         self.peripheralStatus = .connecting
+        print("Bluetooth.connect: initiating connection to -> \(getPeripheralName(peripheral: peripheral))")
         self.centralManger?.connect(peripheral)
     }
 
@@ -151,7 +164,9 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
     }
 
     func disconnect() {
-        if self.peripheralStatus != .connected { return }
-        self.centralManger?.cancelPeripheralConnection(conPeripheral!)
+        if self.peripheralStatus == .disconnected { return }
+        guard let peripheral = conPeripheral else { return }
+        print("Bluetooth.disconnect: cancelling connection to -> \(getPeripheralName(peripheral: peripheral))")
+        self.centralManger?.cancelPeripheralConnection(peripheral)
     }
 }

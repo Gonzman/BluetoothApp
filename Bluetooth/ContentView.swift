@@ -33,15 +33,13 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // MARK: Top Bar
             HStack {
-                // Left: Connect/Disconnect Toggle Button (kept inside its own HStack)
                 HStack(spacing: 0) {
                     Button {
+                        print("ContentView: connect button tapped (isConnected: \(isConnected))")
                         if isConnected {
-                            // Disconnect when connected
+                            print("ContentView: calling bluetoothService.disconnect()")
                             bluetoothService.disconnect()
-                            isConnectedGlobal = false
                         } else {
-                            // Show peripheral list to connect when disconnected
                             isBluetoothListShown.toggle()
                         }
                     } label: {
@@ -54,14 +52,10 @@ struct ContentView: View {
                                     .stroke(Color.gray.opacity(0.25))
                             )
                     }
+                    
                     .sheet(isPresented: $isBluetoothListShown) {
-                        VStack {
-                            PeripheralListView(isExpert: $isExpert)
-                                .environmentObject(bluetoothService)
-                            Button("Alle Anzeigen") { isExpert.toggle() }
-                            Button("Abbrechen") { isBluetoothListShown.toggle() }
-                        }
-                        .padding()
+                        PeripheralListView(isExpert: $isExpert, isSheetPresented: $isBluetoothListShown)
+                            .environmentObject(bluetoothService)
                     }
                 }
 
@@ -116,7 +110,6 @@ struct ContentView: View {
             
             // MARK: Main Control Area
             HStack(alignment: .bottom, spacing: 0) {
-                // Left bottom corner: Nitro + Boost
                 VStack() {
                     HStack {
                         VerticalBar(
@@ -134,7 +127,6 @@ struct ContentView: View {
 
                 Spacer(minLength: 0)
 
-                // Right bottom corner: Joystick
                 VStack {
                     Joystick(
                         monitor: monitor,
@@ -145,7 +137,6 @@ struct ContentView: View {
                     )
                     .environmentObject(bluetoothService)
                     .onChange(of: monitor.xyPoint) { oldPoint, newPoint in
-                        // Start on first joystick input
                         if !hasReceivedFirstJoystickInput {
                             start()
                         }
@@ -158,14 +149,24 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onChange(of: bluetoothService.peripheralStatus) { oldStatus, newStatus in
+            print("ContentView: peripheralStatus changed from \(oldStatus) to \(newStatus)")
             switch newStatus {
             case .connected:
                 isConnected = true
                 isConnectedGlobal = true
                 isBluetoothListShown = false
+            case .connecting:
+                isConnected = true
             case .disconnected:
                 isConnected = false
                 isConnectedGlobal = false
+                reset()
+            case .error:
+                // treat error like disconnected so UI resets
+                isConnected = false
+                isConnectedGlobal = false
+                isBluetoothListShown = false
+                reset()
             default:
                 break
             }
