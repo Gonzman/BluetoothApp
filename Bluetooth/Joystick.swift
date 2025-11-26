@@ -86,10 +86,13 @@ struct Joystick: View {
             }
             
             func sendMapped(_ id: inout UInt8, _ val: CGFloat) {
-                // Base value with optional boost applied
-                let base = min(val, 150) + CGFloat(isBoostActive ? 50 : 0)
-                // We map from an expected input range of 0...200 (after boost/clamp) to -50...200
-                let mappedFloat = mapValue(Double(base), from: 0.0...200.0, to: -50.0...200.0)
+                // Clamp input to ±150, which represents full range of joystick
+                let clamped = max(min(val, 150), -150)
+                // Apply boost if active (adds to positive values only)
+                let base = clamped + CGFloat(isBoostActive && clamped > 0 ? 50 : 0)
+                // Map from clamped range (±150, or ±200 with boost) to -50...200
+                // At rest (0): maps to 0. Full reverse (-150): maps to -50. Full forward (+150): maps to 200.
+                let mappedFloat = mapValue(Double(base), from: -150.0...200.0, to: -50.0...200.0)
                 // Transmit as 32-bit float bit pattern
                 let bits = mappedFloat.bitPattern
                 sendData(channel: &id, dataBits: bits)
