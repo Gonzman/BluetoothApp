@@ -134,7 +134,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         
         if data.count == 1 {
             let byte = data[data.startIndex]
-            //print("One byte received: \(byte)")
+            print("One byte received: \(byte)")
             Notifier.shared.notify("Test")
         } else {
             // print("Received data (\(data.count) bytes): \(data as NSData)")
