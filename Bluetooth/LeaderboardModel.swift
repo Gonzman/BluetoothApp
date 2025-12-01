@@ -1,2 +1,7 @@
-// TODO implement for Leaderboard View
-// It must be easy to add name, value and it must sort it.
+import Foundation
+
+struct LeaderboardEntry: Identifiable {
+    var id = UUID()
+    var name: String
+    var score: Double
+}

@@ -7,21 +7,29 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Leaderboard") {
+                Section {
                     NavigationLink(destination: LeaderboardView()) {
                         Label("View Leaderboard", systemImage: "chart.bar.fill")
                     }
+                } header: {
+                    Text("Leaderboard")
                 }
                 
-                Section("App") {
+                Section {
                     Toggle("Debug", isOn: $isDebug)
+                } header: {
+                    Text("App")
                 }
                 
-                Section("Danger Zone", footer: Text("This will reset the RC-Car settings")) {
+                Section {
                     Button("Reset", role: .destructive) {
                         onReset?()
                         print("Reset RC-Car")
                     }
+                } header: {
+                    Text("Danger Zone")
+                } footer: {
+                    Text("This will reset the RC-Car settings")
                 }
             }
             .navigationTitle("Einstellungen")
