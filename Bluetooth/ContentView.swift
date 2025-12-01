@@ -15,13 +15,12 @@ struct ContentView: View {
     @State private var isConnected = false
     @State private var showSettings = false
     @State private var showLeaderboard = false
-    @State private var isDebug = false
     @State private var isBoosting = false
     
     @State private var isStopwatchRunning = false
     @State private var stopwatchStartDate: Date? = nil
     @State private var elapsedTime: TimeInterval = 0
-    @State private var hasReceivedFirstJoystickInput = false
+    @State private var hasReceivedBluetoothStart = false
     @State private var timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     @State private var leaderboardRefreshTimer: Timer? = nil
     
@@ -53,13 +52,19 @@ struct ContentView: View {
                     } label: {
                         Label(isConnected ? "Trennen" : "Verbinden", systemImage: "antenna.radiowaves.left.and.right")
                             .labelStyle(.titleAndIcon)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
+                            .font(.subheadline.weight(.medium))
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 16)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray.opacity(0.25))
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(isConnected ? Color.green.opacity(0.15) : Color.blue.opacity(0.1))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(isConnected ? Color.green.opacity(0.3) : Color.blue.opacity(0.25), lineWidth: 1)
                             )
                     }
+                    .foregroundColor(isConnected ? .green : .blue)
                     
                     .sheet(isPresented: $isBluetoothListShown) {
                         PeripheralListView(isExpert: $isExpert, isSheetPresented: $isBluetoothListShown)
@@ -74,30 +79,49 @@ struct ContentView: View {
                     showSettings = true
                 } label: {
                     Image(systemName: "gearshape.fill")
-                        .font(.body)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                        .padding(10)
+                        .background(
+                            Circle()
+                                .fill(Color.gray.opacity(0.1))
+                        )
                 }
                 .sheet(isPresented: $showSettings) {
-                    SettingsView(isDebug: $isDebug, onReset: {
+                    SettingsView(onReset: {
                         reset()
                     })
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 14)
+            .padding(.horizontal, 28)
+            .padding(.top, 16)
             
             // MARK: Stopwatch Top-Center
             HStack {
                 Spacer()
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     Text(formattedElapsed(elapsedTime))
-                        .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                        .font(.system(size: 32, weight: .bold, design: .monospaced))
+                        .foregroundColor(isStopwatchRunning ? .primary : .secondary)
                         .accessibilityLabel("Stopwatch time")
+                    
+                    if isStopwatchRunning {
+                        Text("RUNNING")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundColor(.green)
+                            .tracking(1.5)
+                    }
                 }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 20)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.systemBackground).opacity(0.8))
+                        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+                )
                 Spacer()
             }
-            .padding(.top, 8)
+            .padding(.top, 12)
             .onReceive(timer) { _ in
                 guard isStopwatchRunning, let start = stopwatchStartDate else { return }
                 elapsedTime = Date().timeIntervalSince(start)
@@ -107,10 +131,10 @@ struct ContentView: View {
                 goToValue: .constant(Double(abs((monitor.xyPoint.y * -1) + ((isBoostButtonEnabled && isBoosting) ? 50 : 0)))),
                 gaugeValues: .range(start: 0, end: joystickMax + 50, parts: 10),
                 gaugeColor: .gradient([.green, .yellow, .red]),
-                        gaugeWidth: 20
-                    )
-                    .frame(width: 250, height: 250)
-                    .padding()
+                gaugeWidth: 22
+            )
+            .frame(width: 240, height: 240)
+            .padding(.top, 8)
             
             Spacer()
             
@@ -118,20 +142,21 @@ struct ContentView: View {
             
             // MARK: Main Control Area
             HStack(alignment: .bottom, spacing: 0) {
-                VStack() {
+                VStack(spacing: 16) {
                     HStack {
                         VerticalBar(
                             label: "Nitro",
                             fillHeight: nitroLevel,
-                            color: .blue
+                            color: Color(red: 0.2, green: 0.5, blue: 1.0)
                         )
                     }
-                    .frame(width: 200, height: nitroMax, alignment: .center)
+                    .frame(width: 180, height: nitroMax, alignment: .center)
 
                     BoostButton(boostLevel: $nitroLevel, isBoosting: $isBoosting, enabled: isBoostButtonEnabled, maxLevel: nitroMax)
-                        .frame(width: 200, height: 200)
+                        .frame(width: 180, height: 180)
                 }
-                .padding([.leading, .bottom], 24)
+                .padding(.leading, 32)
+                .padding(.bottom, 32)
 
                 Spacer(minLength: 0)
 
@@ -144,13 +169,9 @@ struct ContentView: View {
                         yID: 1
                     )
                     .environmentObject(bluetoothService)
-                    .onChange(of: monitor.xyPoint) { oldPoint, newPoint in
-                        if !hasReceivedFirstJoystickInput {
-                            start()
-                        }
-                    }
                 }
-                .padding([.trailing, .bottom], 24)
+                .padding(.trailing, 32)
+                .padding(.bottom, 32)
             }
 
             Spacer()
@@ -228,8 +249,8 @@ struct ContentView: View {
     }
 
     private func start() {
-        if !hasReceivedFirstJoystickInput {
-            hasReceivedFirstJoystickInput = true
+        if !hasReceivedBluetoothStart {
+            hasReceivedBluetoothStart = true
         }
         showLeaderboard = false
         startStopwatch()
@@ -256,7 +277,7 @@ struct ContentView: View {
         isStopwatchRunning = false
         elapsedTime = 0
         stopwatchStartDate = nil
-        hasReceivedFirstJoystickInput = false
+        hasReceivedBluetoothStart = false
     }
     
     private func submitPlayerScore() {
@@ -330,34 +351,65 @@ struct NameEntryView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: 28) {
                 Spacer()
                 
-                // Trophy icon
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.yellow)
-                
-                // Score display
-                VStack(spacing: 8) {
-                    Text("Your Time")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    Text(score)
-                        .font(.system(size: 36, weight: .bold, design: .monospaced))
+                // Trophy icon with glow effect
+                ZStack {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 70))
+                        .foregroundColor(.yellow.opacity(0.3))
+                        .blur(radius: 20)
+                    
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 64))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.yellow, Color.orange],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 }
                 
+                // Score display
+                VStack(spacing: 6) {
+                    Text("Your Time")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                        .tracking(1.2)
+                    Text(score)
+                        .font(.system(size: 42, weight: .bold, design: .monospaced))
+                        .foregroundColor(.primary)
+                }
+                .padding(.vertical, 16)
+                .padding(.horizontal, 32)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.secondarySystemBackground))
+                )
+                
                 // Name entry
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Enter your name")
-                        .font(.subheadline)
+                        .font(.subheadline.weight(.medium))
                         .foregroundColor(.secondary)
                     TextField("Name", text: $playerName)
-                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color(.secondarySystemBackground))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.blue.opacity(playerName.isEmpty ? 0 : 0.5), lineWidth: 2)
+                        )
                         .font(.title3)
                         .autocorrectionDisabled()
                 }
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 48)
                 
                 Spacer()
                 
@@ -366,16 +418,19 @@ struct NameEntryView: View {
                     onSubmit()
                 }) {
                     Text("Submit")
-                        .font(.headline)
+                        .font(.headline.weight(.semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isValid ? Color.blue : Color.gray)
-                        .cornerRadius(12)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(isValid ? Color.blue : Color.gray.opacity(0.5))
+                        )
+                        .shadow(color: isValid ? Color.blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
                 }
                 .disabled(!isValid)
-                .padding(.horizontal, 40)
-                .padding(.bottom, 40)
+                .padding(.horizontal, 48)
+                .padding(.bottom, 48)
             }
             .navigationTitle("Race Complete!")
             .navigationBarTitleDisplayMode(.inline)

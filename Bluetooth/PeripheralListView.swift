@@ -12,45 +12,110 @@ struct PeripheralListView: View {
     }
 
     var body: some View {
-        VStack {
-            List(bluetoothService.peripherals, id: \.self) { peripheral in
-                let bTN: String = bluetoothService.getPeripheralName(peripheral: peripheral)
-                
-                if !bTN.starts(with: "Nicht benanntes Gerät: ") && ((bTN.contains("FHS") || bTN.contains("BT05") || isExpert))
-                {
-                        Button(
-                            bluetoothService.getPeripheralName(peripheral: peripheral)
-                        ) {
-                            bluetoothService.connect(peripheral: peripheral)
+        NavigationStack {
+            VStack(spacing: 0) {
+                if bluetoothService.peripherals.isEmpty {
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Scanning for devices...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List(bluetoothService.peripherals, id: \.self) { peripheral in
+                        let bTN: String = bluetoothService.getPeripheralName(peripheral: peripheral)
+                        
+                        if !bTN.starts(with: "Nicht benanntes Gerät: ") && ((bTN.contains("FHS") || bTN.contains("BT05") || isExpert))
+                        {
+                            Button(action: {
+                                bluetoothService.connect(peripheral: peripheral)
+                            }) {
+                                HStack(spacing: 14) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.blue.opacity(0.1))
+                                            .frame(width: 40, height: 40)
+                                        Image(systemName: "antenna.radiowaves.left.and.right")
+                                            .font(.system(size: 16, weight: .medium))
+                                            .foregroundColor(.blue)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(bluetoothService.getPeripheralName(peripheral: peripheral))
+                                            .font(.body.weight(.medium))
+                                            .foregroundColor(.primary)
+                                        Text("Tap to connect")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .disabled(isConnected)
+                            .opacity(isConnected ? 0.5 : 1.0)
                         }
-                        .listStyle(.plain)
-                        .disabled(isConnected)
-                        .strikethrough(isConnected)
+                    }
+                    .listStyle(.insetGrouped)
                 }
-            }
-            .navigationTitle("Bluetooth")
-            .navigationBarTitleDisplayMode(.automatic)
 
-            if bluetoothService.peripheralStatus == .connected {
-                Text(
-                    bluetoothService.getPeripheralName(
-                        peripheral: bluetoothService.conPeripheral!
-                    )
-                )
-            }
-            
-            HStack(spacing: 12) {
-                Button(isExpert ? "Verbergen" : "Alle Anzeigen") {
-                    isExpert.toggle()
+                if bluetoothService.peripheralStatus == .connected {
+                    HStack(spacing: 10) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Connected to \(bluetoothService.getPeripheralName(peripheral: bluetoothService.conPeripheral!))")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.green.opacity(0.1))
                 }
-                .frame(maxWidth: .infinity)
                 
-                Button("Abbrechen") {
-                    isSheetPresented.toggle()
+                HStack(spacing: 16) {
+                    Button(action: {
+                        isExpert.toggle()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: isExpert ? "eye.slash" : "eye")
+                            Text(isExpert ? "Hide All" : "Show All")
+                        }
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.blue)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.blue.opacity(0.1))
+                        )
+                    }
+                    
+                    Button(action: {
+                        isSheetPresented.toggle()
+                    }) {
+                        Text("Cancel")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color(.secondarySystemBackground))
+                            )
+                    }
                 }
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color(.systemBackground))
             }
-            .padding()
+            .navigationTitle("Connect Device")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .onChange(of: bluetoothService.peripheralStatus) { oldStatus, newStatus in
             if newStatus == .connected {

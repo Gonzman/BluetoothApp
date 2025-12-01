@@ -23,18 +23,39 @@ struct VerticalBar: View {
                 }
             }()
             let clampedFill = min(max(resolvedFill, 0), barHeight)
-            VStack {
+            let fillPercentage = clampedFill / barHeight
+            
+            VStack(spacing: 8) {
                 ZStack(alignment: .bottom) {
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 12)
                         .frame(width: barWidth, height: barHeight)
-                        .foregroundColor(.gray.opacity(0.28))
-                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color(.systemGray5))
+                    
+                    RoundedRectangle(cornerRadius: 12)
                         .frame(width: barWidth, height: clampedFill)
-                        .foregroundColor(color)
-                        .animation(.linear(duration: 0.08), value: clampedFill)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [color, color.opacity(0.7)],
+                                startPoint: .bottom,
+                                endPoint: .top
+                            )
+                        )
+                        .animation(.easeOut(duration: 0.1), value: clampedFill)
+                    
+                    // Level indicator lines
+                    VStack(spacing: barHeight / 5 - 1) {
+                        ForEach(0..<4, id: \.self) { _ in
+                            Rectangle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: barWidth - 8, height: 1)
+                        }
+                    }
+                    .padding(.bottom, barHeight / 10)
                 }
+                .shadow(color: color.opacity(fillPercentage > 0.5 ? 0.3 : 0), radius: 8, x: 0, y: 0)
+                
                 Text(label)
-                    .font(.caption)
+                    .font(.caption.weight(.medium))
                     .foregroundColor(.secondary)
             }
             .frame(width: barWidth, height: barHeight, alignment: .bottom)
@@ -56,19 +77,43 @@ struct BoostButton: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .foregroundColor(
+            // Background with gradient
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
                     enabled
-                    ? (isBoosting ? Color.red : Color.red.opacity(0.9))
-                    : Color.gray
+                    ? LinearGradient(
+                        colors: isBoosting 
+                            ? [Color(red: 1.0, green: 0.3, blue: 0.2), Color(red: 0.9, green: 0.1, blue: 0.1)]
+                            : [Color(red: 0.95, green: 0.35, blue: 0.25), Color(red: 0.85, green: 0.2, blue: 0.15)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    : LinearGradient(
+                        colors: [Color.gray.opacity(0.5), Color.gray.opacity(0.4)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                 )
-            HStack(spacing: 10) {
+                .shadow(color: enabled && isBoosting ? Color.red.opacity(0.5) : .clear, radius: 12, x: 0, y: 4)
+            
+            // Inner highlight
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(enabled ? 0.2 : 0.1), lineWidth: 1)
+                .padding(1)
+            
+            VStack(spacing: 8) {
                 Image(systemName: "flame.fill")
-                Text("Boost")
-                    .bold()
+                    .font(.system(size: 28, weight: .semibold))
+                    .symbolEffect(.pulse, isActive: isBoosting)
+                Text("BOOST")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .tracking(1.5)
             }
             .foregroundColor(.white)
+            .opacity(enabled ? 1.0 : 0.6)
         }
+        .scaleEffect(isBoosting ? 0.96 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isBoosting)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in

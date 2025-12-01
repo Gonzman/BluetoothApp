@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Binding var isDebug: Bool
     var onReset: (() -> Void)? = nil
     
     var body: some View {
@@ -9,30 +8,57 @@ struct SettingsView: View {
             Form {
                 Section {
                     NavigationLink(destination: LeaderboardView()) {
-                        Label("View Leaderboard", systemImage: "chart.bar.fill")
+                        HStack(spacing: 14) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.blue.opacity(0.15))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "chart.bar.fill")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.blue)
+                            }
+                            Text("View Leaderboard")
+                                .foregroundColor(.primary)
+                        }
                     }
                 } header: {
                     Text("Leaderboard")
+                        .textCase(.uppercase)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.secondary)
                 }
                 
                 Section {
-                    Toggle("Debug", isOn: $isDebug)
-                } header: {
-                    Text("App")
-                }
-                
-                Section {
-                    Button("Reset", role: .destructive) {
+                    Button(action: {
                         onReset?()
                         print("Reset RC-Car")
+                    }) {
+                        HStack(spacing: 14) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.red.opacity(0.15))
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(.red)
+                            }
+                            Text("Reset RC-Car")
+                                .foregroundColor(.red)
+                        }
                     }
                 } header: {
                     Text("Danger Zone")
+                        .textCase(.uppercase)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.secondary)
                 } footer: {
-                    Text("This will reset the RC-Car settings")
+                    Text("This will reset the RC-Car and stop any running timers.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
                 }
             }
-            .navigationTitle("Einstellungen")
+            .navigationTitle("Settings")
         }
     }
 }
