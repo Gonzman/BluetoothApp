@@ -8,10 +8,13 @@ struct ContentView: View {
     @StateObject private var bluetoothService = Bluetooth()
     @StateObject private var monitor = JoystickMonitor()
     
+    private let backend = Backend(host: "localhost", port: 3000)
+    
     @State private var isBluetoothListShown = false
     @State private var isExpert = false
     @State private var isConnected = false
     @State private var showSettings = false
+    @State private var showLeaderboard = false
     @State private var isDebug = false
     @State private var isBoosting = false
     
@@ -20,6 +23,7 @@ struct ContentView: View {
     @State private var elapsedTime: TimeInterval = 0
     @State private var hasReceivedFirstJoystickInput = false
     @State private var timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
+    @State private var leaderboardRefreshTimer: Timer? = nil
     
     @State private var nitroLevel: CGFloat = 150
     private let nitroMax: CGFloat = 150
@@ -180,6 +184,25 @@ struct ContentView: View {
                 self.stopStopwatch()
             }
         }
+        .sheet(isPresented: $showLeaderboard, onDismiss: {
+            stopLeaderboardRefresh()
+        }) {
+            LeaderboardView()
+                .onAppear {
+                    startLeaderboardRefresh()
+                }
+        }
+    }
+    
+    private func startLeaderboardRefresh() {
+        leaderboardRefreshTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            fetchLeaderboard()
+        }
+    }
+    
+    private func stopLeaderboardRefresh() {
+        leaderboardRefreshTimer?.invalidate()
+        leaderboardRefreshTimer = nil
     }
     
     private func formattedElapsed(_ interval: TimeInterval) -> String {
@@ -206,6 +229,46 @@ struct ContentView: View {
 
     private func stopStopwatch() {
         isStopwatchRunning = false
+        
+        // Generate random score and post dummy player data
+        let randomScore = Int.random(in: 50...500)
+        backend.post(endpoint: "player", queryParams: ["name": "Player1", "score": String(randomScore)]) { data, error in
+            if let error = error {
+                print("Error posting player: \(error)")
+                return
+            }
+            
+            // After posting, fetch the leaderboard and open it
+            self.fetchLeaderboard {
+                DispatchQueue.main.async {
+                    self.showLeaderboard = true
+                }
+            }
+        }
+    }
+    
+    private func fetchLeaderboard(completion: (() -> Void)? = nil) {
+        backend.get(endpoint: "leaderboard") { data, error in
+            if let error = error {
+                print("Error fetching leaderboard: \(error)")
+                completion?()
+                return
+            }
+            
+            guard let data = data else {
+                print("No data received from leaderboard")
+                completion?()
+                return
+            }
+            
+            do {
+                let entries = try JSONDecoder().decode([LeaderboardEntry].self, from: data)
+                LeaderboardStore.shared.mergeEntries(with: entries)
+            } catch {
+                print("Error decoding leaderboard: \(error)")
+            }
+            completion?()
+        }
     }
 
     private func reset() {

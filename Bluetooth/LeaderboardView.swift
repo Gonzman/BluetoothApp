@@ -1,26 +1,20 @@
 import SwiftUI
 
 struct LeaderboardView: View {
-    @State private var entries: [LeaderboardEntry] = [
-        LeaderboardEntry(name: "Alex", score: 245.5),
-        LeaderboardEntry(name: "Jordan", score: 189.3),
-        LeaderboardEntry(name: "Taylor", score: 312.8),
-        LeaderboardEntry(name: "Casey", score: 156.2),
-        LeaderboardEntry(name: "Morgan", score: 278.1),
-    ]
+    @ObservedObject private var store = LeaderboardStore.shared
     @State private var showAddEntry = false
     @State private var editingIndex: Int? = nil
     @State private var editingName = ""
     @State private var editingScore = ""
     
     var sortedEntries: [LeaderboardEntry] {
-        entries.sorted { $0.score > $1.score }
+        store.entries.sorted { $0.score > $1.score }
     }
     
     var body: some View {
         NavigationStack {
             VStack {
-                if entries.isEmpty {
+                if store.entries.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "chart.bar.fill")
                             .font(.system(size: 48))
@@ -40,14 +34,14 @@ struct LeaderboardView: View {
                                 rank: index + 1,
                                 entry: entry,
                                 onEdit: {
-                                    editingIndex = entries.firstIndex { $0.id == entry.id } ?? index
+                                    editingIndex = store.entries.firstIndex { $0.id == entry.id } ?? index
                                     editingName = entry.name
                                     editingScore = String(entry.score)
                                     showAddEntry = true
                                 },
                                 onDelete: {
-                                    if let idx = entries.firstIndex(where: { $0.id == entry.id }) {
-                                        entries.remove(at: idx)
+                                    if let idx = store.entries.firstIndex(where: { $0.id == entry.id }) {
+                                        store.entries.remove(at: idx)
                                     }
                                 }
                             )
@@ -76,10 +70,10 @@ struct LeaderboardView: View {
                     score: $editingScore,
                     onSave: {
                         if let index = editingIndex {
-                            entries[index].name = editingName
-                            entries[index].score = Double(editingScore) ?? 0
+                            store.entries[index].name = editingName
+                            store.entries[index].score = Double(editingScore) ?? 0
                         } else {
-                            entries.append(LeaderboardEntry(name: editingName, score: Double(editingScore) ?? 0))
+                            store.entries.append(LeaderboardEntry(name: editingName, score: Double(editingScore) ?? 0))
                         }
                     }
                 )
