@@ -23,6 +23,10 @@ class Bluetooth: NSObject, ObservableObject {
     @Published var conPeripheralDescriptor: CBDescriptor?
     @Published var conServices: [CBService] = []
     @Published var conCharacteristics: [CBCharacteristic] = []
+    
+    // Closures for handling bluetooth commands
+    var onReceiveStart: (() -> Void)?
+    var onReceiveStop: (() -> Void)?
 
     override init() {
         super.init()
@@ -135,7 +139,20 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         if data.count == 1 {
             let byte = data[data.startIndex]
             print("One byte received: \(byte)")
-            Notifier.shared.notify("Test")
+            
+            // Handle commands based on received byte
+            switch byte {
+            case 0x00:
+                print("Received 0x00 - calling start function")
+                onReceiveStart?()
+            case 0x01:
+                print("Received 0x01 - calling stop function")
+                onReceiveStop?()
+            case 0x02:
+                print("Test")
+            default:
+                print("Received unknown byte: \(byte)")
+            }
         } else {
             // print("Received data (\(data.count) bytes): \(data as NSData)")
         }

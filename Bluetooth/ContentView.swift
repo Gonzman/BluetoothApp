@@ -171,6 +171,15 @@ struct ContentView: View {
                 break
             }
         }
+        .onAppear {
+            // Set up bluetooth command listeners
+            bluetoothService.onReceiveStart = {
+                self.start()
+            }
+            bluetoothService.onReceiveStop = {
+                self.stopStopwatch()
+            }
+        }
     }
     
     private func formattedElapsed(_ interval: TimeInterval) -> String {
