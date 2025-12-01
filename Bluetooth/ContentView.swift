@@ -25,6 +25,10 @@ struct ContentView: View {
     @State private var timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     @State private var leaderboardRefreshTimer: Timer? = nil
     
+    @State private var showNameEntry = false
+    @State private var playerName = ""
+    @State private var pendingScore: Double = 0
+    
     @State private var nitroLevel: CGFloat = 150
     private let nitroMax: CGFloat = 150
     private let joystickMax: CGFloat = 300
@@ -184,6 +188,16 @@ struct ContentView: View {
                 self.stopStopwatch()
             }
         }
+        .sheet(isPresented: $showNameEntry) {
+            NameEntryView(
+                isPresented: $showNameEntry,
+                playerName: $playerName,
+                score: formattedElapsed(pendingScore),
+                onSubmit: {
+                    submitPlayerScore()
+                }
+            )
+        }
         .sheet(isPresented: $showLeaderboard, onDismiss: {
             stopLeaderboardRefresh()
         }) {
@@ -217,6 +231,7 @@ struct ContentView: View {
         if !hasReceivedFirstJoystickInput {
             hasReceivedFirstJoystickInput = true
         }
+        showLeaderboard = false
         startStopwatch()
     }
 
@@ -228,19 +243,42 @@ struct ContentView: View {
     }
 
     private func stopStopwatch() {
+        guard isStopwatchRunning else { return }
         isStopwatchRunning = false
         
-        // Generate random score and post dummy player data
-        let randomScore = Int.random(in: 50...500)
-        backend.post(endpoint: "player", queryParams: ["name": "Player1", "score": String(randomScore)]) { data, error in
+        // Store the elapsed time as score and show name entry dialog
+        pendingScore = elapsedTime
+        playerName = ""
+        showNameEntry = true
+    }
+    
+    private func resetStopwatch() {
+        isStopwatchRunning = false
+        elapsedTime = 0
+        stopwatchStartDate = nil
+        hasReceivedFirstJoystickInput = false
+    }
+    
+    private func submitPlayerScore() {
+        let name = playerName.trimmingCharacters(in: .whitespaces).isEmpty ? "Player" : playerName
+        let score = Int(pendingScore * 1000) // Convert to milliseconds for score
+        
+        // Add locally first
+        let newEntry = LeaderboardEntry(name: name, score: Double(score))
+        LeaderboardStore.shared.entries.append(newEntry)
+        
+        // Close name entry first
+        showNameEntry = false
+        
+        // Post to server
+        backend.post(endpoint: "player", queryParams: ["name": name, "score": String(score)]) { data, error in
             if let error = error {
                 print("Error posting player: \(error)")
-                return
             }
             
-            // After posting, fetch the leaderboard and open it
+            // Fetch the leaderboard
             self.fetchLeaderboard {
-                DispatchQueue.main.async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.showLeaderboard = true
                 }
             }
@@ -273,13 +311,76 @@ struct ContentView: View {
 
     private func reset() {
         // Reset Stopwatch
-        stopStopwatch()
-        elapsedTime = 0
-        stopwatchStartDate = nil
-        hasReceivedFirstJoystickInput = false
+        resetStopwatch()
         
         // Reset Nitro
         nitroLevel = 150
+    }
+}
+
+struct NameEntryView: View {
+    @Binding var isPresented: Bool
+    @Binding var playerName: String
+    let score: String
+    let onSubmit: () -> Void
+    
+    var isValid: Bool {
+        !playerName.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Spacer()
+                
+                // Trophy icon
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.yellow)
+                
+                // Score display
+                VStack(spacing: 8) {
+                    Text("Your Time")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    Text(score)
+                        .font(.system(size: 36, weight: .bold, design: .monospaced))
+                }
+                
+                // Name entry
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Enter your name")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    TextField("Name", text: $playerName)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.title3)
+                        .autocorrectionDisabled()
+                }
+                .padding(.horizontal, 40)
+                
+                Spacer()
+                
+                // Submit button
+                Button(action: {
+                    onSubmit()
+                }) {
+                    Text("Submit")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(isValid ? Color.blue : Color.gray)
+                        .cornerRadius(12)
+                }
+                .disabled(!isValid)
+                .padding(.horizontal, 40)
+                .padding(.bottom, 40)
+            }
+            .navigationTitle("Race Complete!")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .interactiveDismissDisabled()
     }
 }
 

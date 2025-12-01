@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LeaderboardView: View {
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject private var store = LeaderboardStore.shared
     @State private var showAddEntry = false
     @State private var editingIndex: Int? = nil
@@ -54,12 +55,9 @@ struct LeaderboardView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        editingIndex = nil
-                        editingName = ""
-                        editingScore = ""
-                        showAddEntry = true
+                        dismiss()
                     }) {
-                        Image(systemName: "plus")
+                        Image(systemName: "xmark")
                     }
                 }
             }
