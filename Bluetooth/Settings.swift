@@ -1,28 +1,65 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject var bluetoothService: Bluetooth
+    @Binding var isConnected: Bool
+    @Binding var isBluetoothListShown: Bool
+    @Binding var isExpert: Bool
+    @Binding var colorScheme: String
+    
     var onReset: (() -> Void)? = nil
     
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    NavigationLink(destination: LeaderboardView()) {
+                    Button {
+                        print("SettingsView: connect button tapped (isConnected: \(isConnected))")
+                        if isConnected {
+                            print("SettingsView: calling bluetoothService.disconnect()")
+                            bluetoothService.disconnect()
+                        } else {
+                            isBluetoothListShown.toggle()
+                        }
+                    } label: {
                         HStack(spacing: 14) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.blue.opacity(0.15))
+                                    .fill((isConnected ? Color.green : Color.blue).opacity(0.15))
                                     .frame(width: 32, height: 32)
-                                Image(systemName: "chart.bar.fill")
+                                Image(systemName: "antenna.radiowaves.left.and.right")
                                     .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(isConnected ? .green : .blue)
                             }
-                            Text("View Leaderboard")
-                                .foregroundColor(.primary)
+                            Text(isConnected ? "Trennen" : "Verbinden")
+                                .foregroundColor(isConnected ? .green : .blue)
                         }
                     }
+                    .sheet(isPresented: $isBluetoothListShown) {
+                        PeripheralListView(isExpert: $isExpert, isSheetPresented: $isBluetoothListShown)
+                            .environmentObject(bluetoothService)
+                    }
                 } header: {
-                    Text("Leaderboard")
+                    Text("Bluetooth")
+                        .textCase(.uppercase)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.secondary)
+                }
+                
+                Section {
+                    Picker("Farbschema", selection: $colorScheme) {
+                        HStack {
+                            Image(systemName: "sun.max.fill")
+                            Text("Hell")
+                        }.tag("light")
+                        HStack {
+                            Image(systemName: "moon.fill")
+                            Text("Dunkel")
+                        }.tag("dark")
+                    }
+                    .pickerStyle(.inline)
+                } header: {
+                    Text("Appearance")
                         .textCase(.uppercase)
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
@@ -30,6 +67,7 @@ struct SettingsView: View {
                 
                 Section {
                     Button(action: {
+                        bluetoothService.disconnect()
                         onReset?()
                         print("Reset RC-Car")
                     }) {
@@ -42,7 +80,7 @@ struct SettingsView: View {
                                     .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(.red)
                             }
-                            Text("Reset RC-Car")
+                            Text("Zurücksetzen")
                                 .foregroundColor(.red)
                         }
                     }
@@ -52,7 +90,7 @@ struct SettingsView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
                 } footer: {
-                    Text("This will reset the RC-Car and stop any running timers.")
+                    Text("Setzt das RC-Car zurück und stoppt alle laufenden Timer.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)

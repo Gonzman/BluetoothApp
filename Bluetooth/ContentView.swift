@@ -5,10 +5,12 @@ import SwiftUIJoystick
 var isConnectedGlobal: Bool = false
 
 struct ContentView: View {
+    @Binding var colorScheme: String
+    
     @StateObject private var bluetoothService = Bluetooth()
     @StateObject private var monitor = JoystickMonitor()
     
-    private let backend = Backend(host: "localhost", port: 3000)
+    private let backend = Backend(host: "auto.offen.schaefer.jp", port: 3000)
     
     @State private var isBluetoothListShown = false
     @State private var isExpert = false
@@ -40,37 +42,25 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // MARK: Top Bar
             HStack {
-                HStack(spacing: 0) {
-                    Button {
-                        print("ContentView: connect button tapped (isConnected: \(isConnected))")
-                        if isConnected {
-                            print("ContentView: calling bluetoothService.disconnect()")
-                            bluetoothService.disconnect()
-                        } else {
-                            isBluetoothListShown.toggle()
-                        }
-                    } label: {
-                        Label(isConnected ? "Trennen" : "Verbinden", systemImage: "antenna.radiowaves.left.and.right")
-                            .labelStyle(.titleAndIcon)
-                            .font(.subheadline.weight(.medium))
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(isConnected ? Color.green.opacity(0.15) : Color.blue.opacity(0.1))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(isConnected ? Color.green.opacity(0.3) : Color.blue.opacity(0.25), lineWidth: 1)
-                            )
-                    }
-                    .foregroundColor(isConnected ? .green : .blue)
-                    
-                    .sheet(isPresented: $isBluetoothListShown) {
-                        PeripheralListView(isExpert: $isExpert, isSheetPresented: $isBluetoothListShown)
-                            .environmentObject(bluetoothService)
-                    }
+                // Left: Leaderboard Button
+                Button {
+                    showLeaderboard = true
+                } label: {
+                    Label("Leaderboard", systemImage: "chart.bar.fill")
+                        .labelStyle(.titleAndIcon)
+                        .font(.subheadline.weight(.medium))
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.blue.opacity(0.1))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.blue.opacity(0.25), lineWidth: 1)
+                        )
                 }
+                .foregroundColor(.blue)
 
                 Spacer()
 
@@ -88,9 +78,16 @@ struct ContentView: View {
                         )
                 }
                 .sheet(isPresented: $showSettings) {
-                    SettingsView(onReset: {
-                        reset()
-                    })
+                    SettingsView(
+                        bluetoothService: bluetoothService,
+                        isConnected: $isConnected,
+                        isBluetoothListShown: $isBluetoothListShown,
+                        isExpert: $isExpert,
+                        colorScheme: $colorScheme,
+                        onReset: {
+                            reset()
+                        }
+                    )
                 }
             }
             .padding(.horizontal, 28)
