@@ -24,7 +24,6 @@ class Bluetooth: NSObject, ObservableObject {
     @Published var conServices: [CBService] = []
     @Published var conCharacteristics: [CBCharacteristic] = []
     
-    // Closures for handling bluetooth commands
     var onReceiveStart: (() -> Void)?
     var onReceiveStop: (() -> Void)?
 
@@ -69,7 +68,6 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         self.peripheralStatus = .connected
         print("Bluetooth.centralManager.didConnect: connected to -> \(getPeripheralName(peripheral: peripheral))")
         self.centralManger?.stopScan()
-        // print(centralManger?.isScanning as Any)
     }
 
     func centralManager(
@@ -119,9 +117,7 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
         for characteristic in characteristics {
             conCharacteristics.append(characteristic)
             peripheral.setNotifyValue(true, for: characteristic)
-            print(
-                "\(String(describing: characteristic.service)) : \(characteristic)"
-            )
+            print("Found", peripheral.name!)
         }
     }
     
@@ -143,13 +139,11 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
             // Handle commands based on received byte
             switch byte {
             case 0x00:
-                print("Received 0x00 - calling start function")
+                print("Received 0x00 (Start byte)")
                 onReceiveStart?()
             case 0x01:
-                print("Received 0x01 - calling stop function")
+                print("Received 0x01 (Stop byte)")
                 onReceiveStop?()
-            case 0x02:
-                print("Test")
             default:
                 print("Received unknown byte: \(byte)")
             }
