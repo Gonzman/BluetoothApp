@@ -101,13 +101,6 @@ struct ContentView: View {
                         .font(.system(size: 32, weight: .bold, design: .monospaced))
                         .foregroundColor(isStopwatchRunning ? .primary : .secondary)
                         .accessibilityLabel("Stopwatch time")
-                    
-                    if isStopwatchRunning {
-                        Text("RUNNING")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundColor(.green)
-                            .tracking(1.5)
-                    }
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 20)
@@ -134,8 +127,6 @@ struct ContentView: View {
             .padding(.top, 8)
             
             Spacer()
-            
-            
             
             // MARK: Main Control Area
             HStack(alignment: .bottom, spacing: 0) {
@@ -394,7 +385,7 @@ struct NameEntryView: View {
                 
                 // Name entry
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Enter your name")
+                    Text("Dein Name")
                         .font(.subheadline.weight(.medium))
                         .foregroundColor(.secondary)
                     TextField("Name", text: $playerName)
@@ -419,7 +410,7 @@ struct NameEntryView: View {
                 Button(action: {
                     onSubmit()
                 }) {
-                    Text("Submit")
+                    Text("Absenden")
                         .font(.headline.weight(.semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -434,7 +425,7 @@ struct NameEntryView: View {
                 .padding(.horizontal, 48)
                 .padding(.bottom, 48)
             }
-            .navigationTitle("Race Complete!")
+            .navigationTitle("Rennen Beendet!")
             .navigationBarTitleDisplayMode(.inline)
         }
         .interactiveDismissDisabled()

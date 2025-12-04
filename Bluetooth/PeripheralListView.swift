@@ -18,7 +18,7 @@ struct PeripheralListView: View {
                     VStack(spacing: 16) {
                         ProgressView()
                             .scaleEffect(1.2)
-                        Text("Scanning for devices...")
+                        Text("Suche nach Geräten...")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -46,7 +46,7 @@ struct PeripheralListView: View {
                                         Text(bluetoothService.getPeripheralName(peripheral: peripheral))
                                             .font(.body.weight(.medium))
                                             .foregroundColor(.primary)
-                                        Text("Tap to connect")
+                                        Text("Tippen zum Verbinden")
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
@@ -70,7 +70,7 @@ struct PeripheralListView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("Connected to \(bluetoothService.getPeripheralName(peripheral: bluetoothService.conPeripheral!))")
+                        Text("Verbunden mit \(bluetoothService.getPeripheralName(peripheral: bluetoothService.conPeripheral!))")
                             .font(.subheadline.weight(.medium))
                     }
                     .padding()
@@ -84,7 +84,7 @@ struct PeripheralListView: View {
                     }) {
                         HStack(spacing: 6) {
                             Image(systemName: isExpert ? "eye.slash" : "eye")
-                            Text(isExpert ? "Hide All" : "Show All")
+                            Text(isExpert ? "Alle ausblenden" : "Alle anzeigen")
                         }
                         .font(.subheadline.weight(.medium))
                         .foregroundColor(.blue)
@@ -99,7 +99,7 @@ struct PeripheralListView: View {
                     Button(action: {
                         isSheetPresented.toggle()
                     }) {
-                        Text("Cancel")
+                        Text("Abbrechen")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
                             .padding(.vertical, 12)
@@ -114,7 +114,7 @@ struct PeripheralListView: View {
                 .padding(.vertical, 16)
                 .background(Color(.systemBackground))
             }
-            .navigationTitle("Connect Device")
+            .navigationTitle("Gerät verbinden")
             .navigationBarTitleDisplayMode(.inline)
         }
         .onChange(of: bluetoothService.peripheralStatus) { oldStatus, newStatus in

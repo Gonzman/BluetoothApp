@@ -59,7 +59,7 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.inline)
                 } header: {
-                    Text("Appearance")
+                    Text("Anzeigeeinstellungen")
                         .textCase(.uppercase)
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
@@ -85,7 +85,7 @@ struct SettingsView: View {
                         }
                     }
                 } header: {
-                    Text("Danger Zone")
+                    Text("RC-Car")
                         .textCase(.uppercase)
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
@@ -96,7 +96,7 @@ struct SettingsView: View {
                         .padding(.top, 4)
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Einstellungen")
         }
     }
 }

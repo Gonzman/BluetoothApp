@@ -28,13 +28,7 @@ struct LeaderboardEntry: Identifiable, Codable {
 class LeaderboardStore: ObservableObject {
     static let shared = LeaderboardStore()
     
-    @Published var entries: [LeaderboardEntry] = [
-        LeaderboardEntry(name: "Alex", score: 245.5),
-        LeaderboardEntry(name: "Jordan", score: 189.3),
-        LeaderboardEntry(name: "Taylor", score: 312.8),
-        LeaderboardEntry(name: "Casey", score: 156.2),
-        LeaderboardEntry(name: "Morgan", score: 278.1),
-    ]
+    @Published var entries: [LeaderboardEntry] = []
     
     private init() {}
     
@@ -135,9 +129,9 @@ struct LeaderboardView: View {
                         }
                         
                         VStack(spacing: 8) {
-                            Text("No Entries Yet")
+                            Text("Noch keine Einträge")
                                 .font(.title3.weight(.semibold))
-                            Text("Complete a race to add your first entry")
+                            Text("Beende ein Rennen, um deinen ersten Eintrag hinzuzufügen")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
@@ -342,13 +336,13 @@ struct LeaderboardRowView: View {
             Button(role: .destructive) {
                 onDelete()
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label("Löschen", systemImage: "trash")
             }
             
             Button {
                 onEdit()
             } label: {
-                Label("Edit", systemImage: "pencil")
+                Label("Bearbeiten", systemImage: "pencil")
             }
             .tint(.blue)
         }
@@ -384,24 +378,24 @@ struct AddEditEntryView: View {
                             .keyboardType(.decimalPad)
                     }
                 } header: {
-                    Text("Entry Details")
+                    Text("Eintragsdetails")
                 } footer: {
-                    Text("Enter a name and score for the leaderboard entry.")
+                    Text("Gib einen Namen und eine Punktzahl für den Eintrag in der Bestenliste ein.")
                         .foregroundColor(.secondary)
                 }
             }
-            .navigationTitle("Add Entry")
+            .navigationTitle("Eintrag hinzufügen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button("Abbrechen") {
                         isPresented = false
                     }
                     .foregroundColor(.secondary)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
+                    Button("Speichern") {
                         onSave()
                         isPresented = false
                     }
