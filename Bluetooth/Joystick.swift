@@ -107,7 +107,10 @@ struct Joystick: View {
             sendMapped(&x, monitor.xyPoint.x)
             
             var y = yID
-            sendMapped(&y, monitor.xyPoint.y * -1)
+            let yValue = monitor.xyPoint.y * -1
+            // Apply half value when moving backwards (negative value)
+            let adjustedY = yValue < 0 ? yValue * 0.5 : yValue
+            sendMapped(&y, adjustedY)
         }
     }
 

@@ -118,7 +118,13 @@ struct ContentView: View {
             }
             
             GaugeViewXKRepresentable(
-                goToValue: .constant(Double(abs((monitor.xyPoint.y * -1) + ((isBoostButtonEnabled && isBoosting) ? 50 : 0)))),
+                goToValue: .constant({
+                    let yValue = monitor.xyPoint.y * -1
+                    // Apply half value when moving backwards (negative value)
+                    let adjustedY = yValue < 0 ? yValue * 0.5 : yValue
+                    let boost = (isBoostButtonEnabled && isBoosting) ? CGFloat(50) : CGFloat(0)
+                    return Double(abs(adjustedY + boost))
+                }()),
                 gaugeValues: .range(start: 0, end: joystickMax + 50, parts: 10),
                 gaugeColor: .gradient([.green, .yellow, .red]),
                 gaugeWidth: 22
