@@ -12,19 +12,7 @@ struct Joystick: View {
     private let xID: UInt8
     private let yID: UInt8
     
-    @State private var isBoostActive: Bool = false
-    
-    public var boostBinding: Binding<Bool> {
-        Binding<Bool>(
-            get: { self.isBoostActive },
-            set: { self.isBoostActive = $0 }
-        )
-    }
-    
-    public func boost(_ active: Bool) {
-        // Activate or deactivate boost. When active, outgoing values add +50 in startData()
-        self.isBoostActive = active
-    }
+    private let isBoosting: Bool
     
     public init(
         monitor: JoystickMonitor,
@@ -32,12 +20,14 @@ struct Joystick: View {
         shape: JoystickShape = .rect,
         xID: UInt8,
         yID: UInt8,
+        isBoosting: Bool = false
     ) {
         self.monitor = monitor
         self.dragDiameter = width
         self.shape = shape
         self.xID = xID
         self.yID = yID
+        self.isBoosting = isBoosting
     }
 
     public var body: some View {
@@ -97,7 +87,7 @@ struct Joystick: View {
                 }
                 
                 // Apply boost if active (adds to positive values only)
-                let boost = CGFloat(isBoostActive && clamped > 0 ? 50 : 0)
+                let boost = CGFloat(isBoosting && clamped > 0 ? 50 : 0)
                 let base = clamped + boost
                 
                 // Map from joystick range to output range

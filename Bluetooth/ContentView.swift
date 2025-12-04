@@ -163,7 +163,8 @@ struct ContentView: View {
                         width: joystickMax,
                         shape: .circle,
                         xID: 0,
-                        yID: 1
+                        yID: 1,
+                        isBoosting: isBoosting && isBoostButtonEnabled
                     )
                     .environmentObject(bluetoothService)
                 }
@@ -268,6 +269,10 @@ struct ContentView: View {
         pendingScore = elapsedTime
         playerName = ""
         showNameEntry = true
+        
+        // Reset timer values
+        elapsedTime = 0
+        stopwatchStartDate = nil
     }
     
     private func resetStopwatch() {
