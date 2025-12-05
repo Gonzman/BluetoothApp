@@ -10,7 +10,7 @@ struct ContentView: View {
     @StateObject private var bluetoothService = Bluetooth()
     @StateObject private var monitor = JoystickMonitor()
     
-    private let backend = Backend(host: "auto.offen.schaefer.jp", port: 3000)
+    private let backend = Backend(host: "auto.offen.schaefer.jp", port: 3123)
     
     @State private var isBluetoothListShown = false
     @State private var isExpert = false
