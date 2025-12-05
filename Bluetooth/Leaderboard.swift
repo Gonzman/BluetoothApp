@@ -25,6 +25,14 @@ struct LeaderboardEntry: Identifiable, Codable {
     }
 }
 
+// Helper function to format time as mm:ss:ms
+func formatTime(_ totalSeconds: Double) -> String {
+    let minutes = Int(totalSeconds) / 60
+    let seconds = Int(totalSeconds) % 60
+    let milliseconds = Int((totalSeconds.truncatingRemainder(dividingBy: 1)) * 100)
+    return String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
+}
+
 class LeaderboardStore: ObservableObject {
     static let shared = LeaderboardStore()
     
@@ -70,7 +78,7 @@ struct LeaderboardView: View {
     @State private var editingScore = ""
     
     var sortedEntries: [LeaderboardEntry] {
-        store.entries.sorted { $0.score > $1.score }
+        store.entries.sorted { $0.score < $1.score }
     }
     
     var topThree: [LeaderboardEntry] {
@@ -231,7 +239,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
                             
-                            Text(String(format: "%.1f", topThree[1].score))
+                            Text(formatTime(topThree[1].score))
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
@@ -257,7 +265,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                             
-                            Text(String(format: "%.1f", topThree[0].score))
+                            Text(formatTime(topThree[0].score))
                                 .font(.system(.caption2, design: .monospaced))
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
@@ -284,7 +292,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
                             
-                            Text(String(format: "%.1f", topThree[2].score))
+                            Text(formatTime(topThree[2].score))
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
@@ -324,8 +332,8 @@ struct LeaderboardRowView: View {
             
             Spacer()
             
-            // Score
-            Text(String(format: "%.1f", entry.score))
+            // Zeit
+            Text(formatTime(entry.score))
                 .font(.system(.callout, design: .monospaced))
                 .fontWeight(.semibold)
                 .foregroundColor(.blue)
@@ -374,13 +382,13 @@ struct AddEditEntryView: View {
                         Image(systemName: "timer")
                             .foregroundColor(.orange)
                             .frame(width: 24)
-                        TextField("Score", text: $score)
+                        TextField("Zeit (Sekunden)", text: $score)
                             .keyboardType(.decimalPad)
                     }
                 } header: {
                     Text("Eintragsdetails")
                 } footer: {
-                    Text("Gib einen Namen und eine Punktzahl für den Eintrag in der Bestenliste ein.")
+                    Text("Gib einen Namen und die Zeit in Sekunden für den Eintrag in der Bestenliste ein.")
                         .foregroundColor(.secondary)
                 }
             }

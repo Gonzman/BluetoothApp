@@ -102,7 +102,10 @@ struct Joystick: View {
             }
 
             var x = xID
-            sendMapped(&x, monitor.xyPoint.x, inputRange: -150.0...150.0, outputRange: -200.0...200.0)
+            // Apply sine-based smoothing to steering for more gradual control near center
+            let normalizedX = monitor.xyPoint.x / 150.0  // Normalize to -1...1
+            let smoothedX = sin(normalizedX * .pi / 2) * 150.0  // Sine curve for smooth response
+            sendMapped(&x, smoothedX, inputRange: -150.0...150.0, outputRange: -200.0...200.0)
             
             var y = yID
             let yValue = monitor.xyPoint.y * -1
