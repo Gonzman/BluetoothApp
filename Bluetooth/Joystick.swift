@@ -12,7 +12,7 @@ struct Joystick: View {
     private let xID: UInt8
     private let yID: UInt8
     
-    private let isBoosting: Bool
+    @Binding var isBoosting: Bool
     
     public init(
         monitor: JoystickMonitor,
@@ -20,14 +20,14 @@ struct Joystick: View {
         shape: JoystickShape = .rect,
         xID: UInt8,
         yID: UInt8,
-        isBoosting: Bool = false
+        isBoosting: Binding<Bool>
     ) {
         self.monitor = monitor
         self.dragDiameter = width
         self.shape = shape
         self.xID = xID
         self.yID = yID
-        self.isBoosting = isBoosting
+        self._isBoosting = isBoosting
     }
 
     public var body: some View {

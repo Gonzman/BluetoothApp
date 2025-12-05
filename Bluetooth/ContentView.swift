@@ -161,7 +161,10 @@ struct ContentView: View {
                         shape: .circle,
                         xID: 0,
                         yID: 1,
-                        isBoosting: isBoosting && isBoostButtonEnabled
+                        isBoosting: Binding(
+                            get: { isBoosting && isBoostButtonEnabled },
+                            set: { _ in }
+                        )
                     )
                     .environmentObject(bluetoothService)
                 }
