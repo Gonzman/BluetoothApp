@@ -75,7 +75,7 @@ struct Joystick: View {
                 return
             }
             
-            func sendMapped(_ id: inout UInt8, _ val: CGFloat) {
+            func sendMapped(_ id: inout UInt8, _ val: CGFloat, inputRange: ClosedRange<Double>, outputRange: ClosedRange<Double>, applyBoost: Bool = false) {
                 // Clamp input to ±150, which represents full range of joystick
                 let clamped = max(min(val, 150), -150)
                 
@@ -87,16 +87,14 @@ struct Joystick: View {
                 }
                 
                 // Apply boost if active (adds to positive values only)
-                let boost = CGFloat(isBoosting && clamped > 0 ? 50 : 0)
+                let boost = CGFloat(applyBoost && isBoosting && clamped > 0 ? 50 : 0)
                 let base = clamped + boost
                 
-                // Map from joystick range to output range
-                // At rest (0): maps to 0. Full reverse (-150): maps to -150. Full forward (+150): maps to 191.25.
-                // With boost: full forward (+200) maps to 255
+                // Map from input range to output range
                 let mappedFloat = mapValue(
                     Double(base),
-                    from: -150.0...200.0,
-                    to: -150.0...255.0
+                    from: inputRange,
+                    to: outputRange
                 )
                 // Transmit as 32-bit float bit pattern
                 let bits = mappedFloat.bitPattern
@@ -104,13 +102,13 @@ struct Joystick: View {
             }
 
             var x = xID
-            sendMapped(&x, monitor.xyPoint.x)
+            sendMapped(&x, monitor.xyPoint.x, inputRange: -150.0...150.0, outputRange: -200.0...200.0)
             
             var y = yID
             let yValue = monitor.xyPoint.y * -1
             // Apply half value when moving backwards (negative value)
             let adjustedY = yValue < 0 ? yValue * 0.5 : yValue
-            sendMapped(&y, adjustedY)
+            sendMapped(&y, adjustedY, inputRange: -150.0...200.0, outputRange: -150.0...255.0, applyBoost: true)
         }
     }
 
