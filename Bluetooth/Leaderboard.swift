@@ -4,13 +4,13 @@ import Foundation
 struct LeaderboardEntry: Identifiable, Codable {
     var id = UUID()
     var name: String
-    var score: Double
+    var score: String
     
     enum CodingKeys: String, CodingKey {
         case name, score
     }
     
-    init(name: String, score: Double) {
+    init(name: String, score: String) {
         self.id = UUID()
         self.name = name
         self.score = score
@@ -20,17 +20,27 @@ struct LeaderboardEntry: Identifiable, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = UUID()
         self.name = try container.decode(String.self, forKey: .name)
-        // Handle null score by defaulting to 0
-        self.score = try container.decodeIfPresent(Double.self, forKey: .score) ?? 0
+        // Handle null score by defaulting to "00:00:00"
+        self.score = try container.decodeIfPresent(String.self, forKey: .score) ?? "00:00:00"
     }
 }
 
-// Helper function to format time as mm:ss:ms
+// Helper function to format time as mm:ss:ms from seconds
 func formatTime(_ totalSeconds: Double) -> String {
     let minutes = Int(totalSeconds) / 60
     let seconds = Int(totalSeconds) % 60
     let milliseconds = Int((totalSeconds.truncatingRemainder(dividingBy: 1)) * 100)
     return String(format: "%02d:%02d:%02d", minutes, seconds, milliseconds)
+}
+
+// Helper function to parse time string mm:ss:ms to total seconds for sorting
+func parseTimeToSeconds(_ timeString: String) -> Double {
+    let components = timeString.split(separator: ":").compactMap { Int($0) }
+    guard components.count == 3 else { return 0 }
+    let minutes = components[0]
+    let seconds = components[1]
+    let centiseconds = components[2]
+    return Double(minutes * 60) + Double(seconds) + Double(centiseconds) / 100.0
 }
 
 class LeaderboardStore: ObservableObject {
@@ -78,7 +88,7 @@ struct LeaderboardView: View {
     @State private var editingScore = ""
     
     var sortedEntries: [LeaderboardEntry] {
-        store.entries.sorted { $0.score < $1.score }
+        store.entries.sorted { parseTimeToSeconds($0.score) < parseTimeToSeconds($1.score) }
     }
     
     var topThree: [LeaderboardEntry] {
@@ -166,7 +176,7 @@ struct LeaderboardView: View {
                                             onEdit: {
                                                 editingIndex = store.entries.firstIndex { $0.id == entry.id } ?? index
                                                 editingName = entry.name
-                                                editingScore = String(entry.score)
+                                                editingScore = entry.score
                                                 showAddEntry = true
                                             },
                                             onDelete: {
@@ -202,9 +212,9 @@ struct LeaderboardView: View {
                     onSave: {
                         if let index = editingIndex {
                             store.entries[index].name = editingName
-                            store.entries[index].score = Double(editingScore) ?? 0
+                            store.entries[index].score = editingScore
                         } else {
-                            store.entries.append(LeaderboardEntry(name: editingName, score: Double(editingScore) ?? 0))
+                            store.entries.append(LeaderboardEntry(name: editingName, score: editingScore))
                         }
                     }
                 )
@@ -239,7 +249,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
                             
-                            Text(formatTime(topThree[1].score))
+                            Text(topThree[1].score)
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
@@ -265,7 +275,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.bold)
                                 .lineLimit(1)
                             
-                            Text(formatTime(topThree[0].score))
+                            Text(topThree[0].score)
                                 .font(.system(.caption2, design: .monospaced))
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
@@ -292,7 +302,7 @@ struct WinnersStandView: View {
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
                             
-                            Text(formatTime(topThree[2].score))
+                            Text(topThree[2].score)
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundColor(.secondary)
                         }
@@ -333,7 +343,7 @@ struct LeaderboardRowView: View {
             Spacer()
             
             // Zeit
-            Text(formatTime(entry.score))
+            Text(entry.score)
                 .font(.system(.callout, design: .monospaced))
                 .fontWeight(.semibold)
                 .foregroundColor(.blue)
@@ -364,7 +374,11 @@ struct AddEditEntryView: View {
     let onSave: () -> Void
     
     var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && !score.isEmpty && Double(score) != nil
+        // Validate name is not empty
+        guard !name.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+        // Validate time format mm:ss:ms
+        let components = score.split(separator: ":").compactMap { Int($0) }
+        return components.count == 3 && components.allSatisfy { $0 >= 0 && $0 < 100 }
     }
     
     var body: some View {
@@ -382,13 +396,13 @@ struct AddEditEntryView: View {
                         Image(systemName: "timer")
                             .foregroundColor(.orange)
                             .frame(width: 24)
-                        TextField("Zeit (Sekunden)", text: $score)
-                            .keyboardType(.decimalPad)
+                        TextField("Zeit (mm:ss:ms)", text: $score)
+                            .keyboardType(.numbersAndPunctuation)
                     }
                 } header: {
                     Text("Eintragsdetails")
                 } footer: {
-                    Text("Gib einen Namen und die Zeit in Sekunden für den Eintrag in der Bestenliste ein.")
+                    Text("Gib einen Namen und die Zeit im Format mm:ss:ms (z.B. 01:23:45) für den Eintrag in der Bestenliste ein.")
                         .foregroundColor(.secondary)
                 }
             }

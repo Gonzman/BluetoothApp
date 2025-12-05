@@ -5,7 +5,9 @@ class Backend {
     private let session: URLSession
     
     init(host: String = "localhost", port: Int = 8000) {
-        self.baseURL = URL(string: "https://\(host):\(port)")!
+        let prefix = host.starts(with: "localhost") ? "http" : "https"
+        
+        self.baseURL = URL(string: "\(prefix)://\(host):\(port)")!
         self.session = URLSession.shared
     }
     

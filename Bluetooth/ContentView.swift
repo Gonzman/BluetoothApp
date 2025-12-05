@@ -287,17 +287,17 @@ struct ContentView: View {
     
     private func submitPlayerScore() {
         let name = playerName.trimmingCharacters(in: .whitespaces).isEmpty ? "Player" : playerName
-        let score = Int(pendingScore * 1000) // Convert to milliseconds for score
+        let formattedScore = formattedElapsed(pendingScore) // Already in mm:ss:ms format
         
         // Add locally first
-        let newEntry = LeaderboardEntry(name: name, score: Double(score))
+        let newEntry = LeaderboardEntry(name: name, score: formattedScore)
         LeaderboardStore.shared.entries.append(newEntry)
         
         // Close name entry first
         showNameEntry = false
         
-        // Post to server
-        backend.post(endpoint: "player", queryParams: ["name": name, "score": String(score)]) { data, error in
+        // Post to server with formatted time string
+        backend.post(endpoint: "player", queryParams: ["name": name, "score": formattedScore]) { data, error in
             if let error = error {
                 print("Error posting player: \(error)")
             }
