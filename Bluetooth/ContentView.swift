@@ -273,6 +273,9 @@ struct ContentView: View {
         // Reset timer values
         elapsedTime = 0
         stopwatchStartDate = nil
+        
+        // Reset nitro level
+        nitroLevel = nitroMax
     }
     
     private func resetStopwatch() {
