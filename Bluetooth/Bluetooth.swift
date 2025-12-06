@@ -174,6 +174,13 @@ extension Bluetooth: CBCentralManagerDelegate, CBPeripheralDelegate {
             self.centralManger?.scanForPeripherals(withServices: nil)
         }
     }
+    
+    func rescanForPeripherals() {
+        self.centralManger?.stopScan()
+        self.peripherals.removeAll()
+        self.peripheralNames.removeAll()
+        self.scanForPeripherals()
+    }
 
     func disconnect() {
         if self.peripheralStatus == .disconnected { return }

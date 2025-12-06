@@ -2,6 +2,7 @@ import CoreBluetooth
 import SwiftUI
 
 var isConnectedGlobal: Bool = false
+var isUIOpen: Bool = false
 
 struct ContentView: View {
     @Binding var colorScheme: String
@@ -140,30 +141,27 @@ struct ContentView: View {
                     )
                     .environmentObject(bluetoothService)
                     
-                    VStack(spacing: 16) {
-                        VerticalBar(
-                            label: "Nitro",
-                            fillHeight: nitroLevel,
-                            color: Color(red: 0.2, green: 0.5, blue: 1.0)
-                        )
-                        .frame(width: 100, height: nitroMax, alignment: .center)
-                        
-                        BoostButton(
-                            boostLevel: $nitroLevel,
-                            isBoosting: $isBoosting,
-                            enabled: isBoostButtonEnabled,
-                            maxLevel: nitroMax
-                        )
-                        .frame(width: 100, height: 100)
-                    }
+                    VerticalBar(
+                        label: "Nitro",
+                        fillHeight: nitroLevel,
+                        color: Color(red: 0.2, green: 0.5, blue: 1.0)
+                    )
+                    .frame(width: 100, height: nitroMax, alignment: .center)
                 }
                 .padding(.leading, 32)
                 .padding(.bottom, 32)
 
                 Spacer(minLength: 0)
-
                 
                 VStack {
+                    BoostButton(
+                        boostLevel: $nitroLevel,
+                        isBoosting: $isBoosting,
+                        enabled: isBoostButtonEnabled,
+                        maxLevel: nitroMax
+                    )
+                    .frame(width: 100, height: 100)
+                    
                     RCControlBars(
                         isBoosting: Binding(
                             get: { isBoosting && isBoostButtonEnabled },
@@ -219,14 +217,21 @@ struct ContentView: View {
                 score: formattedElapsed(pendingScore),
                 onSubmit: {
                     submitPlayerScore()
+                },
+                onSkip: {
+                    showNameEntry = false
+                    isUIOpen = true
+                    showLeaderboard = true
                 }
             )
         }
         .sheet(isPresented: $showLeaderboard, onDismiss: {
             stopLeaderboardRefresh()
+            isUIOpen = false
         }) {
             LeaderboardView()
                 .onAppear {
+                    isUIOpen = true
                     startLeaderboardRefresh()
                 }
         }
@@ -274,6 +279,7 @@ struct ContentView: View {
         pendingScore = elapsedTime
         playerName = ""
         showNameEntry = true
+        isUIOpen = true
         
         
         elapsedTime = 0
@@ -300,6 +306,7 @@ struct ContentView: View {
         
         
         showNameEntry = false
+        // isUIOpen stays true because leaderboard will be shown next
         
         
         backend.post(endpoint: "player", queryParams: ["name": name, "score": formattedScore]) { data, error in
@@ -354,6 +361,9 @@ struct NameEntryView: View {
     @Binding var playerName: String
     let score: String
     let onSubmit: () -> Void
+    let onSkip: () -> Void
+    
+    @FocusState private var isNameFieldFocused: Bool
     
     var isValid: Bool {
         !playerName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -406,6 +416,7 @@ struct NameEntryView: View {
                         .font(.subheadline.weight(.medium))
                         .foregroundColor(.secondary)
                     TextField("Name", text: $playerName)
+                        .focused($isNameFieldFocused)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 14)
                         .background(
@@ -424,21 +435,44 @@ struct NameEntryView: View {
                 Spacer()
                 
                 
-                Button(action: {
-                    onSubmit()
-                }) {
-                    Text("Absenden")
-                        .font(.headline.weight(.semibold))
-                        .foregroundColor(.white)
+                HStack(spacing: 12) {
+                    if playerName.isEmpty {
+                        Button(action: {
+                            onSkip()
+                        }) {
+                            Text("Überspringen")
+                                .font(.headline.weight(.semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.gray)
+                                )
+                        }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(isValid ? Color.blue : Color.gray.opacity(0.5))
-                        )
-                        .shadow(color: isValid ? Color.blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+                    }
+                    
+                    Button(action: {
+                        if isValid {
+                            onSubmit()
+                        } else {
+                            isNameFieldFocused = true
+                        }
+                    }) {
+                        Text("Absenden")
+                            .font(.headline.weight(.semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.blue)
+                            )
+                            .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .disabled(!isValid)
                 .padding(.horizontal, 48)
                 .padding(.bottom, 48)
             }

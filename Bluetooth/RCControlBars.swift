@@ -58,6 +58,13 @@ struct ThrottleBar: View {
             }
             
             var y = yID
+            
+            if isUIOpen {
+                let bits = Float(0.0).bitPattern
+                sendData(channel: &y, dataBits: bits)
+                return
+            }
+            
             var outputValue: CGFloat = 0.0
             
             if throttleValue > 0.01 {
@@ -66,7 +73,7 @@ struct ThrottleBar: View {
                     outputValue = outputValue + 55.0
                 }
             } else if throttleValue < -0.01 {
-                outputValue = throttleValue * 50.0
+                outputValue = throttleValue * 150.0
             }
             
             let bits = Float(outputValue).bitPattern
@@ -89,14 +96,14 @@ struct ThrottleBar: View {
     }
     
     private func updateCurrentSpeed() {
-        var outputValue: CGFloat
-        if throttleValue > 0 {
+        var outputValue: CGFloat = 0.0
+        if throttleValue > 0.01 {
             outputValue = throttleValue * 200.0
             if isBoosting {
                 outputValue = outputValue + 55.0
             }
-        } else {
-            outputValue = throttleValue * 50.0
+        } else if throttleValue < -0.01 {
+            outputValue = throttleValue * 150.0
         }
         currentSpeed = abs(outputValue)
     }
@@ -139,6 +146,12 @@ struct RCControlBars: View {
             }
             
             var x = xID
+            
+            if isUIOpen {
+                let bits = Float(0.0).bitPattern
+                sendData(channel: &x, dataBits: bits)
+                return
+            }
             
             if abs(steeringValue) < 0.01 {
                 let bits = Float(0.0).bitPattern

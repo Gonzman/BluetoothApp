@@ -19,6 +19,7 @@ struct SettingsView: View {
                             print("SettingsView: calling bluetoothService.disconnect()")
                             bluetoothService.disconnect()
                         } else {
+                            bluetoothService.rescanForPeripherals()
                             isBluetoothListShown.toggle()
                         }
                     } label: {
