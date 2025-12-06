@@ -13,12 +13,12 @@
 		93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B72B9B2C40FB3200355965 /* ContentView.swift */; };
 		93B72B9E2C40FB3400355965 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93B72B9D2C40FB3400355965 /* Assets.xcassets */; };
 		93CDE6472C46C64800F281AC /* SwiftUIJoystick in Frameworks */ = {isa = PBXBuildFile; productRef = 93CDE6462C46C64800F281AC /* SwiftUIJoystick */; };
-		93CDE64B2C46D3F100F281AC /* Joystick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93CDE64A2C46D3F100F281AC /* Joystick.swift */; };
 		D62A33002ED9E24A00BA2912 /* Leaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62A32FF2ED9E24A00BA2912 /* Leaderboard.swift */; };
 		D62D66412EBE8E3900393518 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66402EBE8E3900393518 /* Settings.swift */; };
 		D62D66432EBE8F9D00393518 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62D66422EBE8F9D00393518 /* Components.swift */; };
 		D65CDF372ED7472C00DF71D4 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D65CDF362ED7472C00DF71D4 /* Backend.swift */; };
 		D6D108792EC4D29B00FF6BCE /* Gauge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6D108782EC4D29B00FF6BCE /* Gauge.swift */; };
+		D6EAD04E2EE43505001A4915 /* RCControlBars.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EAD04D2EE43505001A4915 /* RCControlBars.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,12 +29,12 @@
 		93B72B992C40FB3200355965 /* BluetoothApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothApp.swift; sourceTree = "<group>"; };
 		93B72B9B2C40FB3200355965 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		93B72B9D2C40FB3400355965 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		93CDE64A2C46D3F100F281AC /* Joystick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Joystick.swift; sourceTree = "<group>"; };
 		D62A32FF2ED9E24A00BA2912 /* Leaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Leaderboard.swift; sourceTree = "<group>"; };
 		D62D66402EBE8E3900393518 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D62D66422EBE8F9D00393518 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		D65CDF362ED7472C00DF71D4 /* Backend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
 		D6D108782EC4D29B00FF6BCE /* Gauge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gauge.swift; sourceTree = "<group>"; };
+		D6EAD04D2EE43505001A4915 /* RCControlBars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RCControlBars.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +68,7 @@
 		93B72B982C40FB3200355965 /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
+				D6EAD04D2EE43505001A4915 /* RCControlBars.swift */,
 				D62A32FF2ED9E24A00BA2912 /* Leaderboard.swift */,
 				D65CDF362ED7472C00DF71D4 /* Backend.swift */,
 				936AF5E62C96F62F00F283AE /* Info.plist */,
@@ -76,7 +77,6 @@
 				93B72B9D2C40FB3400355965 /* Assets.xcassets */,
 				933DE7EA2C42C5E60011307B /* Bluetooth.swift */,
 				9336AD382C458112000CFF6B /* PeripheralListView.swift */,
-				93CDE64A2C46D3F100F281AC /* Joystick.swift */,
 				D62D66402EBE8E3900393518 /* Settings.swift */,
 				D62D66422EBE8F9D00393518 /* Components.swift */,
 				D6D108782EC4D29B00FF6BCE /* Gauge.swift */,
@@ -159,6 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6EAD04E2EE43505001A4915 /* RCControlBars.swift in Sources */,
 				D62D66412EBE8E3900393518 /* Settings.swift in Sources */,
 				9336AD392C458112000CFF6B /* PeripheralListView.swift in Sources */,
 				D62A33002ED9E24A00BA2912 /* Leaderboard.swift in Sources */,
@@ -167,7 +168,6 @@
 				D65CDF372ED7472C00DF71D4 /* Backend.swift in Sources */,
 				93B72B9C2C40FB3200355965 /* ContentView.swift in Sources */,
 				93B72B9A2C40FB3200355965 /* BluetoothApp.swift in Sources */,
-				93CDE64B2C46D3F100F281AC /* Joystick.swift in Sources */,
 				D6D108792EC4D29B00FF6BCE /* Gauge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

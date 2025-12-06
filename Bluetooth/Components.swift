@@ -149,3 +149,109 @@ struct BoostButton: View {
         timer = nil
     }
 }
+
+// MARK: DraggableBar
+/// A draggable bar control with a thumb indicator for RC car steering and throttle.
+/// Supports both horizontal and vertical orientations.
+struct DraggableBar: View {
+    enum Orientation {
+        case horizontal
+        case vertical
+    }
+    
+    var label: String
+    var orientation: Orientation
+    @Binding var value: CGFloat  // Normalized value from -1 to 1
+    var color: Color
+    var trackWidth: CGFloat
+    var trackHeight: CGFloat
+    
+    @State private var isDragging: Bool = false
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            GeometryReader { geo in
+                let size = geo.size
+                
+                ZStack(alignment: orientation == .vertical ? .bottom : .leading) {
+                    // Background track
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.systemGray5))
+                        .frame(width: trackWidth, height: trackHeight)
+                    
+                    // Center line indicator
+                    if orientation == .horizontal {
+                        Rectangle()
+                            .fill(Color.white.opacity(0.3))
+                            .frame(width: 2, height: trackHeight - 8)
+                            .position(x: trackWidth / 2, y: trackHeight / 2)
+                    } else {
+                        Rectangle()
+                            .fill(Color.white.opacity(0.3))
+                            .frame(width: trackWidth - 8, height: 2)
+                            .position(x: trackWidth / 2, y: trackHeight / 2)
+                    }
+                    
+                    // Draggable thumb
+                    ZStack {
+                        Circle()
+                            .fill(color)
+                            .frame(width: 60, height: 60)
+                            .shadow(color: color.opacity(0.4), radius: isDragging ? 12 : 6, x: 0, y: 2)
+                        
+                        Circle()
+                            .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                            .frame(width: 60, height: 60)
+                    }
+                    .scaleEffect(isDragging ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 0.15), value: isDragging)
+                    .position(thumbPosition(in: size))
+                }
+                .frame(width: trackWidth, height: trackHeight)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { gesture in
+                            isDragging = true
+                            updateValue(from: gesture.location, in: size)
+                        }
+                        .onEnded { _ in
+                            isDragging = false
+                            // Auto-center when released
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                value = 0
+                            }
+                        }
+                )
+            }
+            .frame(width: trackWidth, height: trackHeight)
+            
+            Text(label)
+                .font(.caption.weight(.medium))
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private func thumbPosition(in size: CGSize) -> CGPoint {
+        if orientation == .horizontal {
+            // Map value from -1...1 to 0...trackWidth
+            let x = (value + 1) / 2 * trackWidth
+            return CGPoint(x: x, y: trackHeight / 2)
+        } else {
+            // Map value from -1...1 to trackHeight...0 (inverted for up = positive)
+            let y = (1 - ((value + 1) / 2)) * trackHeight
+            return CGPoint(x: trackWidth / 2, y: y)
+        }
+    }
+    
+    private func updateValue(from location: CGPoint, in size: CGSize) {
+        if orientation == .horizontal {
+            // Map location.x from 0...trackWidth to -1...1
+            let normalized = location.x / trackWidth
+            value = min(max(normalized * 2 - 1, -1), 1)
+        } else {
+            // Map location.y from trackHeight...0 to -1...1 (inverted)
+            let normalized = location.y / trackHeight
+            value = min(max(1 - normalized * 2, -1), 1)
+        }
+    }
+}

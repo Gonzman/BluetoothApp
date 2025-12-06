@@ -1,6 +1,5 @@
 import CoreBluetooth
 import SwiftUI
-import SwiftUIJoystick
 
 var isConnectedGlobal: Bool = false
 
@@ -8,7 +7,6 @@ struct ContentView: View {
     @Binding var colorScheme: String
     
     @StateObject private var bluetoothService = Bluetooth()
-    @StateObject private var monitor = JoystickMonitor()
     
     private let backend = Backend(host: "auto.offen.schaefer.jp", port: 443)
     
@@ -32,7 +30,8 @@ struct ContentView: View {
     
     @State private var nitroLevel: CGFloat = 150
     private let nitroMax: CGFloat = 150
-    private let joystickMax: CGFloat = 300
+    
+    @State private var currentSpeed: CGFloat = 0
     
     private var isBoostButtonEnabled: Bool {
         isStopwatchRunning && nitroLevel > 0
@@ -42,7 +41,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             // MARK: Top Bar
             HStack {
-                // Left: Leaderboard Button
+                
                 Button {
                     showLeaderboard = true
                 } label: {
@@ -64,7 +63,7 @@ struct ContentView: View {
 
                 Spacer()
 
-                // Right: Settings Button (icon only, no HStack wrapper)
+                
                 Button {
                     showSettings = true
                 } label: {
@@ -118,14 +117,8 @@ struct ContentView: View {
             }
             
             GaugeViewXKRepresentable(
-                goToValue: .constant({
-                    let yValue = monitor.xyPoint.y * -1
-                    // Apply half value when moving backwards (negative value)
-                    let adjustedY = yValue < 0 ? yValue * 0.5 : yValue
-                    let boost = (isBoostButtonEnabled && isBoosting) ? CGFloat(50) : CGFloat(0)
-                    return Double(abs(adjustedY + boost))
-                }()),
-                gaugeValues: .range(start: 0, end: joystickMax + 50, parts: 10),
+                goToValue: .constant(Double(currentSpeed)),
+                gaugeValues: .range(start: 0, end: 250, parts: 10),
                 gaugeColor: .gradient([.green, .yellow, .red]),
                 gaugeWidth: 22
             )
@@ -136,35 +129,47 @@ struct ContentView: View {
             
             // MARK: Main Control Area
             HStack(alignment: .bottom, spacing: 0) {
-                VStack(spacing: 16) {
-                    HStack {
+                
+                HStack(alignment: .bottom, spacing: 24) {
+                    ThrottleBar(
+                        isBoosting: Binding(
+                            get: { isBoosting && isBoostButtonEnabled },
+                            set: { _ in }
+                        ),
+                        currentSpeed: $currentSpeed
+                    )
+                    .environmentObject(bluetoothService)
+                    
+                    VStack(spacing: 16) {
                         VerticalBar(
                             label: "Nitro",
                             fillHeight: nitroLevel,
                             color: Color(red: 0.2, green: 0.5, blue: 1.0)
                         )
+                        .frame(width: 100, height: nitroMax, alignment: .center)
+                        
+                        BoostButton(
+                            boostLevel: $nitroLevel,
+                            isBoosting: $isBoosting,
+                            enabled: isBoostButtonEnabled,
+                            maxLevel: nitroMax
+                        )
+                        .frame(width: 100, height: 100)
                     }
-                    .frame(width: 180, height: nitroMax, alignment: .center)
-
-                    BoostButton(boostLevel: $nitroLevel, isBoosting: $isBoosting, enabled: isBoostButtonEnabled, maxLevel: nitroMax)
-                        .frame(width: 180, height: 180)
                 }
                 .padding(.leading, 32)
                 .padding(.bottom, 32)
 
                 Spacer(minLength: 0)
 
+                
                 VStack {
-                    Joystick(
-                        monitor: monitor,
-                        width: joystickMax,
-                        shape: .circle,
-                        xID: 0,
-                        yID: 1,
+                    RCControlBars(
                         isBoosting: Binding(
                             get: { isBoosting && isBoostButtonEnabled },
                             set: { _ in }
-                        )
+                        ),
+                        currentSpeed: $currentSpeed
                     )
                     .environmentObject(bluetoothService)
                 }
@@ -189,7 +194,7 @@ struct ContentView: View {
                 isConnectedGlobal = false
                 reset()
             case .error:
-                // treat error like disconnected so UI resets
+                
                 isConnected = false
                 isConnectedGlobal = false
                 isBluetoothListShown = false
@@ -199,7 +204,7 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            // Set up bluetooth command listeners
+            
             bluetoothService.onReceiveStart = {
                 self.start()
             }
@@ -265,16 +270,16 @@ struct ContentView: View {
         guard isStopwatchRunning else { return }
         isStopwatchRunning = false
         
-        // Store the elapsed time as score and show name entry dialog
+        
         pendingScore = elapsedTime
         playerName = ""
         showNameEntry = true
         
-        // Reset timer values
+        
         elapsedTime = 0
         stopwatchStartDate = nil
         
-        // Reset nitro level
+        
         nitroLevel = nitroMax
     }
     
@@ -289,20 +294,20 @@ struct ContentView: View {
         let name = playerName.trimmingCharacters(in: .whitespaces).isEmpty ? "Player" : playerName
         let formattedScore = formattedElapsed(pendingScore) // Already in mm:ss:ms format
         
-        // Add locally first
+        
         let newEntry = LeaderboardEntry(name: name, score: formattedScore)
         LeaderboardStore.shared.entries.append(newEntry)
         
-        // Close name entry first
+        
         showNameEntry = false
         
-        // Post to server with formatted time string
+        
         backend.post(endpoint: "player", queryParams: ["name": name, "score": formattedScore]) { data, error in
             if let error = error {
                 print("Error posting player: \(error)")
             }
             
-            // Fetch the leaderboard
+            
             self.fetchLeaderboard {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.showLeaderboard = true
@@ -336,10 +341,10 @@ struct ContentView: View {
     }
 
     private func reset() {
-        // Reset Stopwatch
+        
         resetStopwatch()
         
-        // Reset Nitro
+        
         nitroLevel = 150
     }
 }
@@ -359,7 +364,7 @@ struct NameEntryView: View {
             VStack(spacing: 28) {
                 Spacer()
                 
-                // Trophy icon with glow effect
+                
                 ZStack {
                     Image(systemName: "trophy.fill")
                         .font(.system(size: 70))
@@ -377,7 +382,7 @@ struct NameEntryView: View {
                         )
                 }
                 
-                // Score display
+                
                 VStack(spacing: 6) {
                     Text("Your Time")
                         .font(.subheadline.weight(.medium))
@@ -395,7 +400,7 @@ struct NameEntryView: View {
                         .fill(Color(.secondarySystemBackground))
                 )
                 
-                // Name entry
+                
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Dein Name")
                         .font(.subheadline.weight(.medium))
@@ -418,7 +423,7 @@ struct NameEntryView: View {
                 
                 Spacer()
                 
-                // Submit button
+                
                 Button(action: {
                     onSubmit()
                 }) {
